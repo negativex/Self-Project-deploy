@@ -1,4 +1,3 @@
-Below is a sample **README.md** file that you can use for your project. Feel free to modify any section to suit your specific requirements or preferences.
 
 ---
 
@@ -61,17 +60,16 @@ This project is a fully functional **Snake** game implemented in Python using th
 
 Follow these steps to get the Snake Game running on your local machine:
 
-1. **Clone or Download**  
+1. **Clone The Repos**  
    - **Clone** this repository using:  
      ```bash
-     git clone https://github.com/your-username/snake-game.git
+     git clone https://github.com/AlecVOV/Self-Project
      ```  
-     or **download** the ZIP file and extract it.
 
 2. **Navigate to Project Directory**  
    - In your terminal or command prompt, move into the project folder:  
      ```bash
-     cd snake-game
+     cd Snake Game Project
      ```
 
 3. **Create/Activate a Virtual Environment (Optional)**  
@@ -88,7 +86,6 @@ Follow these steps to get the Snake Game running on your local machine:
      ```bash
      pip install pygame
      ```
-     *(If you have a `requirements.txt`, you could instead use `pip install -r requirements.txt`.)*
 
 ---
 

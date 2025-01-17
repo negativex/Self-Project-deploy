@@ -1,3 +1,7 @@
+#Folder unincluded
+Error_Coding_Folder/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -7,7 +7,7 @@ A simple to-do list web application built with [Flask](to-do-list/app.py) and [F
 1. **Clone the repository:**
 
     ```sh
-    git clone https://github.com/yourusername/your-repo.git
+    git clone https://github.com/AlecVOV/Self-Project
     ```
 
 2. **Navigate to the project directory:**
@@ -19,7 +19,7 @@ A simple to-do list web application built with [Flask](to-do-list/app.py) and [F
 3. **Create a virtual environment:**
 
     ```sh
-    python3 -m venv venv
+    python -m venv venv
     ```
 
 4. **Activate the virtual environment:**
@@ -39,7 +39,7 @@ A simple to-do list web application built with [Flask](to-do-list/app.py) and [F
 5. **Install the dependencies:**
 
     ```sh
-    pip install Flask Flask-SQLAlchemy
+    pip install -r requirements.txt
     ```
 
 ## Usage
@@ -56,12 +56,8 @@ A simple to-do list web application built with [Flask](to-do-list/app.py) and [F
 
 3. **Access the application:**
 
-    Open your web browser and navigate to `http://127.0.0.1:5000/`
+    Open your web browser and navigate to `http://(localhost or your IP address):5000`.
 
 ## Contributing
 
 Contributions are welcome! Please see the contributing guidelines.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.

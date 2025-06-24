@@ -321,7 +321,6 @@
 <script setup>
 import { useProductsStore } from '~/stores/products'
 import { useCartStore } from '~/stores/cart'
-import ProductCard from '~/components/ProductCard.vue' 
 
 const route = useRoute()
 const productsStore = useProductsStore()

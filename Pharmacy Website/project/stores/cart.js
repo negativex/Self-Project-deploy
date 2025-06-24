@@ -44,6 +44,13 @@ export const useCartStore = defineStore('cart', {
     
     clearCart() {
       this.items = []
+    },
+    
+    addToCart(product, quantity) {
+      if (!product) return
+      
+      this.addItem(product, quantity)
+      alert(`${product.name} added to cart!`)
     }
   },
 })

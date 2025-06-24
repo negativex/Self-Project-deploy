@@ -204,6 +204,10 @@
 </template>
 
 <script setup>
+definePageMeta({
+  middleware: 'auth'
+})
+
 import { ref, computed, watch } from 'vue'
 import { useCartStore } from '~/stores/cart'
 

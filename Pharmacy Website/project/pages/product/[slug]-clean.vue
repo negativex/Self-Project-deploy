@@ -133,6 +133,25 @@
             </div>
           </div>
 
+          <!-- Variants -->
+          <div v-if="product.variants && product.variants.length > 0" class="space-y-4">
+            <h3 class="font-medium text-gray-700">{{ product.variantLabel || 'Select Option' }}</h3>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="(variant, index) in product.variants"
+                :key="index"
+                @click="selectedVariantIndex = index"
+                :class="{
+                  'border-blue-500 bg-blue-50 text-blue-700': selectedVariantIndex === index,
+                  'border-gray-300 hover:border-blue-300 text-gray-700': selectedVariantIndex !== index
+                }"
+                class="px-4 py-2 rounded-md border transition-colors"
+              >
+                {{ variant.name }}
+              </button>
+            </div>
+          </div>
+
           <!-- Quantity and Add to Cart -->
           <div v-if="product.inStock" class="space-y-4">
             <div class="flex items-center space-x-4">
@@ -201,11 +220,22 @@
               <!-- Description Tab -->
               <div v-show="activeTab === 0" class="prose max-w-none">
                 <p class="text-gray-700 mb-4">{{ product.description }}</p>
+                
+                <div v-if="product.benefits && product.benefits.length > 0">
+                  <h4 class="font-semibold text-lg mb-2">Key Benefits:</h4>
+                  <ul class="list-disc pl-5 mb-4">
+                    <li v-for="(benefit, index) in product.benefits" :key="index" class="mb-1">
+                      {{ benefit }}
+                    </li>
+                  </ul>
+                </div>
               </div>
 
               <!-- Ingredients Tab -->
               <div v-show="activeTab === 1" class="prose max-w-none">
                 <div v-if="product.ingredients">
+                  <p v-if="product.ingredientsDescription" class="mb-4">{{ product.ingredientsDescription }}</p>
+                  
                   <div v-if="Array.isArray(product.ingredients)" class="mb-4">
                     <h4 class="font-semibold text-lg mb-2">Active Ingredients:</h4>
                     <ul class="list-disc pl-5">
@@ -321,7 +351,6 @@
 <script setup>
 import { useProductsStore } from '~/stores/products'
 import { useCartStore } from '~/stores/cart'
-import ProductCard from '~/components/ProductCard.vue' 
 
 const route = useRoute()
 const productsStore = useProductsStore()

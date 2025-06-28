@@ -31,6 +31,8 @@ While checkout.vue exists, it appears to be missing:
 Payment gateway integration (Stripe, PayPal, etc.)
 Payment processing logic
 Payment success/failure handling
+
+
 5. Backend API Integration
 No API routes in the server directory
 Missing database integration

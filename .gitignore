@@ -2,6 +2,8 @@
 Error_Coding_Folder/
 Web Scrawing Python/Output
 
+archive_test_project/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

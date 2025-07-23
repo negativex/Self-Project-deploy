@@ -46,11 +46,15 @@ export const useCartStore = defineStore('cart', {
       this.items = []
     },
     
-    addToCart(product, quantity) {
+    async addToCart(product, quantity) {
       if (!product) return
       
       this.addItem(product, quantity)
-      alert(`${product.name} added to cart!`)
+      
+      // Use toast notification instead of alert
+      const { useNotificationsStore } = await import('~/stores/notifications')
+      const notifications = useNotificationsStore()
+      notifications.success(`${product.name} added to cart!`)
     }
   },
 })

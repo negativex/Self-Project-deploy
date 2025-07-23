@@ -31,7 +31,7 @@
     <!-- Product Info -->
     <div class="p-4">
       <!-- Category -->
-      <p class="text-xs text-neutral-500 mb-1">{{ product.category }}</p>
+      <p class="text-xs text-neutral-500 mb-1">{{ product.category?.name || product.category }}</p>
       
       <!-- Product Name -->
       <NuxtLink :to="`/product/${product.slug}`">
@@ -57,7 +57,7 @@
           </span>
           <span class="font-semibold text-neutral-900">${{ product.price.toFixed(2) }}</span>
         </div>
-        <span v-if="!product.inStock" class="text-xs text-accent-600 font-medium">Out of Stock</span>
+        <span v-if="product.stock === 0 || product.inStock === false" class="text-xs text-accent-600 font-medium">Out of Stock</span>
         <span v-else-if="product.isRx" class="text-xs text-primary-600 font-medium">Rx Required</span>
       </div>
       
@@ -68,7 +68,7 @@
             View Details
           </NuxtLink>
         </template>
-        <template v-else-if="product.inStock">
+        <template v-else-if="product.stock > 0 && product.inStock !== false">
           <button @click="$emit('add-to-cart', product)" 
                   class="btn-primary py-1.5 flex-grow text-sm">
             Add to Cart

@@ -210,8 +210,14 @@ const handleLogin = async () => {
     
     // Redirect after successful login
     setTimeout(() => {
-      const redirectTo = useRoute().query.redirect || '/'
-      router.push(redirectTo)
+      const redirectTo = useRoute().query.redirect
+      
+      // Check if user is admin and redirect accordingly
+      if (authStore.getUserRole === 'admin') {
+        router.push(redirectTo || '/admin')
+      } else {
+        router.push(redirectTo || '/account')
+      }
     }, 1000)
     
   } catch (err) {
@@ -222,7 +228,11 @@ const handleLogin = async () => {
 // Redirect if already authenticated
 onMounted(() => {
   if (authStore.isLoggedIn) {
-    router.push('/')
+    if (authStore.getUserRole === 'admin') {
+      router.push('/admin')
+    } else {
+      router.push('/account')
+    }
   }
 })
 </script>

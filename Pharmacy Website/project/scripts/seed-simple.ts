@@ -1,0 +1,378 @@
+import prisma from '../lib/prisma'
+import { hashPassword } from '../lib/auth'
+
+async function seedDatabase() {
+  try {
+    console.log('🌱 Starting database seeding...')
+
+    // Clear existing data
+    console.log('🧹 Clearing existing data...')
+    await prisma.review.deleteMany()
+    await prisma.orderItem.deleteMany()
+    await prisma.order.deleteMany()
+    await prisma.cartItem.deleteMany()
+    await prisma.prescription.deleteMany()
+    await prisma.product.deleteMany()
+    await prisma.category.deleteMany()
+    await prisma.user.deleteMany()
+
+    // Create categories
+    console.log('📦 Creating categories...')
+    const categories = await Promise.all([
+      prisma.category.create({
+        data: {
+          name: "Pain Relief",
+          slug: "pain-relief",
+          description: "Over-the-counter and prescription pain management medications",
+          image: "/images/categories/pain-relief.jpg"
+        }
+      }),
+      prisma.category.create({
+        data: {
+          name: "Cold & Flu",
+          slug: "cold-flu",
+          description: "Medications for cold, flu, and respiratory symptoms",
+          image: "/images/categories/cold-flu.jpg"
+        }
+      }),
+      prisma.category.create({
+        data: {
+          name: "Vitamins & Supplements",
+          slug: "vitamins-supplements",
+          description: "Essential vitamins, minerals, and health supplements",
+          image: "/images/categories/vitamins.jpg"
+        }
+      }),
+      prisma.category.create({
+        data: {
+          name: "Personal Care",
+          slug: "personal-care",
+          description: "Personal hygiene and skincare products",
+          image: "/images/categories/personal-care.jpg"
+        }
+      }),
+      prisma.category.create({
+        data: {
+          name: "First Aid",
+          slug: "first-aid",
+          description: "First aid supplies and emergency medical items",
+          image: "/images/categories/first-aid.jpg"
+        }
+      })
+    ])
+
+    console.log(`✅ Created ${categories.length} categories`)
+
+    // Create products
+    console.log('🏥 Creating products...')
+    const products = [
+      {
+        name: "Paracetamol 500mg",
+        slug: "paracetamol-500mg",
+        description: "Fast-acting pain relief and fever reducer. Effective for headaches, muscle aches, and minor pain.",
+        shortDescription: "Fast-acting pain relief tablets",
+        price: 12.99,
+        comparePrice: 15.99,
+        discount: 18.7,
+        sku: "PARA500-24",
+        stock: 150,
+        minStock: 20,
+        maxStock: 500,
+        images: JSON.stringify(["/images/products/paracetamol-500mg.jpg"]),
+        featured: true,
+        manufacturer: "PharmaCorp",
+        ingredients: JSON.stringify(["Paracetamol 500mg"]),
+        dosage: "1-2 tablets every 4-6 hours. Maximum 8 tablets in 24 hours.",
+        categoryId: categories[0].id
+      },
+      {
+        name: "Ibuprofen 200mg",
+        slug: "ibuprofen-200mg", 
+        description: "Anti-inflammatory pain relief medication. Effective for inflammation, pain, and fever.",
+        shortDescription: "Anti-inflammatory pain relief",
+        price: 8.99,
+        comparePrice: 11.99,
+        discount: 25.0,
+        sku: "IBU200-24",
+        stock: 200,
+        minStock: 30,
+        maxStock: 600,
+        images: JSON.stringify(["/images/products/ibuprofen-200mg.jpg"]),
+        featured: true,
+        manufacturer: "MediPharm",
+        ingredients: JSON.stringify(["Ibuprofen 200mg"]),
+        dosage: "1-2 tablets every 6-8 hours with food. Maximum 6 tablets in 24 hours.",
+        categoryId: categories[0].id
+      },
+      {
+        name: "Cough Syrup 120ml",
+        slug: "cough-syrup-120ml",
+        description: "Soothing cough syrup for dry and chesty coughs. Provides fast relief from cough symptoms.",
+        shortDescription: "Cough relief syrup",
+        price: 15.99,
+        comparePrice: null,
+        discount: 0,
+        sku: "COUGH120-24",
+        stock: 80,
+        minStock: 15,
+        maxStock: 200,
+        images: JSON.stringify(["/images/products/cough-syrup.jpg"]),
+        featured: false,
+        manufacturer: "CoughCare",
+        ingredients: JSON.stringify(["Dextromethorphan", "Guaifenesin"]),
+        dosage: "Adults: 10ml every 4 hours. Children 6-12: 5ml every 4 hours.",
+        categoryId: categories[1].id
+      },
+      {
+        name: "Vitamin D3 1000IU",
+        slug: "vitamin-d3-1000iu",
+        description: "Essential vitamin D3 supplement for bone health and immune system support.",
+        shortDescription: "Vitamin D3 supplement tablets",
+        price: 24.99,
+        comparePrice: 29.99,
+        discount: 16.7,
+        sku: "VITD3-1000",
+        stock: 120,
+        minStock: 25,
+        maxStock: 300,
+        images: JSON.stringify(["/images/products/vitamin-d3.jpg"]),
+        featured: true,
+        manufacturer: "VitaHealth",
+        ingredients: JSON.stringify(["Vitamin D3 (Cholecalciferol) 1000IU"]),
+        dosage: "One tablet daily with food, or as directed by healthcare professional.",
+        categoryId: categories[2].id
+      },
+      {
+        name: "Hand Sanitizer 250ml",
+        slug: "hand-sanitizer-250ml",
+        description: "Alcohol-based hand sanitizer with 70% ethyl alcohol. Kills 99.9% of germs and bacteria.",
+        shortDescription: "Antibacterial hand sanitizer",
+        price: 6.99,
+        comparePrice: null,
+        discount: 0,
+        sku: "HANDSANI-250",
+        stock: 300,
+        minStock: 50,
+        maxStock: 1000,
+        images: JSON.stringify(["/images/products/hand-sanitizer.jpg"]),
+        featured: false,
+        manufacturer: "CleanCare",
+        ingredients: JSON.stringify(["Ethyl Alcohol 70%", "Glycerin", "Aloe Vera"]),
+        dosage: null,
+        categoryId: categories[3].id
+      },
+      {
+        name: "Bandages Pack",
+        slug: "bandages-pack",
+        description: "Sterile adhesive bandages in assorted sizes. Perfect for minor cuts and wounds.",
+        shortDescription: "Assorted sterile bandages",
+        price: 4.99,
+        comparePrice: null,
+        discount: 0,
+        sku: "BANDAGE-PACK",
+        stock: 250,
+        minStock: 40,
+        maxStock: 800,
+        images: JSON.stringify(["/images/products/bandages.jpg"]),
+        featured: false,
+        manufacturer: "FirstAidPro",
+        ingredients: null,
+        dosage: null,
+        categoryId: categories[4].id
+      }
+    ]
+
+    const createdProducts = []
+    for (const productData of products) {
+      const product = await prisma.product.create({ data: productData })
+      createdProducts.push(product)
+    }
+
+    console.log(`✅ Created ${createdProducts.length} products`)
+
+    // Create admin user
+    console.log('👤 Creating admin user...')
+    const adminPassword = await hashPassword('admin123')
+    const adminUser = await prisma.user.create({
+      data: {
+        email: 'admin@pharmacy.com',
+        password: adminPassword,
+        firstName: 'Admin',
+        lastName: 'User',
+        phone: '+1234567890',
+        role: 'ADMIN'
+      }
+    })
+
+    // Create customer user
+    console.log('👤 Creating customer user...')
+    const customerPassword = await hashPassword('customer123')
+    const customerUser = await prisma.user.create({
+      data: {
+        email: 'customer@example.com',
+        password: customerPassword,
+        firstName: 'John',
+        lastName: 'Doe',
+        phone: '+1234567891',
+        role: 'CUSTOMER'
+      }
+    })
+
+    console.log('✅ Created users')
+
+    // Create sample orders for the customer
+    console.log('📋 Creating sample orders...')
+    const order1 = await prisma.order.create({
+      data: {
+        orderNumber: 'ORD-2025-001',
+        userId: customerUser.id,
+        status: 'DELIVERED',
+        totalAmount: 45.97,
+        taxAmount: 3.20,
+        shippingFee: 2.80,
+        shippingAddress: JSON.stringify({
+          firstName: 'John',
+          lastName: 'Doe',
+          address: '123 Main St',
+          city: 'Anytown',
+          state: 'CA',
+          zipCode: '90210',
+          country: 'US'
+        }),
+        billingAddress: JSON.stringify({
+          firstName: 'John',
+          lastName: 'Doe',
+          address: '123 Main St',
+          city: 'Anytown',
+          state: 'CA',
+          zipCode: '90210',
+          country: 'US'
+        }),
+        paymentMethod: 'credit-card',
+        paymentStatus: 'PAID'
+      }
+    })
+
+    const order2 = await prisma.order.create({
+      data: {
+        orderNumber: 'ORD-2025-002',
+        userId: customerUser.id,
+        status: 'SHIPPED',
+        totalAmount: 23.99,
+        taxAmount: 1.60,
+        shippingFee: 2.40,
+        shippingAddress: JSON.stringify({
+          firstName: 'John',
+          lastName: 'Doe',
+          address: '123 Main St',
+          city: 'Anytown',
+          state: 'CA',
+          zipCode: '90210',
+          country: 'US'
+        }),
+        billingAddress: JSON.stringify({
+          firstName: 'John',
+          lastName: 'Doe',
+          address: '123 Main St',
+          city: 'Anytown',
+          state: 'CA',
+          zipCode: '90210',
+          country: 'US'
+        }),
+        paymentMethod: 'credit-card',
+        paymentStatus: 'PAID'
+      }
+    })
+
+    // Create order items for order 1
+    await prisma.orderItem.create({
+      data: {
+        orderId: order1.id,
+        productId: createdProducts[0].id, // Ibuprofen
+        quantity: 2,
+        price: 12.99,
+        total: 25.98
+      }
+    })
+
+    await prisma.orderItem.create({
+      data: {
+        orderId: order1.id,
+        productId: createdProducts[2].id, // Vitamin D3
+        quantity: 1,
+        price: 13.99,
+        total: 13.99
+      }
+    })
+
+    // Create order items for order 2
+    await prisma.orderItem.create({
+      data: {
+        orderId: order2.id,
+        productId: createdProducts[1].id, // Acetaminophen
+        quantity: 1,
+        price: 9.99,
+        total: 9.99
+      }
+    })
+
+    await prisma.orderItem.create({
+      data: {
+        orderId: order2.id,
+        productId: createdProducts[4].id, // Hand Sanitizer
+        quantity: 1,
+        price: 9.99,
+        total: 9.99
+      }
+    })
+
+    console.log('✅ Created sample orders')
+
+    // Create some sample cart items for the customer
+    console.log('🛒 Creating sample cart items...')
+    await prisma.cartItem.create({
+      data: {
+        userId: customerUser.id,
+        productId: createdProducts[0].id,
+        quantity: 2
+      }
+    })
+
+    await prisma.cartItem.create({
+      data: {
+        userId: customerUser.id,
+        productId: createdProducts[3].id,
+        quantity: 1
+      }
+    })
+
+    console.log('✅ Created sample cart items')
+
+    console.log('🎉 Database seeding completed successfully!')
+    console.log('\n📊 Summary:')
+    console.log(`   Categories: ${categories.length}`)
+    console.log(`   Products: ${createdProducts.length}`)
+    console.log(`   Users: 2 (1 admin, 1 customer)`)
+    console.log(`   Cart Items: 2`)
+    console.log('\n👤 Test Accounts:')
+    console.log('   Admin: admin@pharmacy.com / admin123')
+    console.log('   Customer: customer@example.com / customer123')
+
+  } catch (error) {
+    console.error('❌ Database seeding failed:', error)
+    throw error
+  }
+}
+
+// Run seeder
+seedDatabase()
+  .then(() => {
+    console.log('✅ Seeding completed')
+    process.exit(0)
+  })
+  .catch((error) => {
+    console.error('❌ Seeding failed:', error)
+    process.exit(1)
+  })
+
+export default seedDatabase

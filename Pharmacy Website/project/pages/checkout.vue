@@ -1,5 +1,5 @@
 <template>
-  <div class="py-8 md:py-12">
+  <div class="py-8 md:py-12 relative">
     <div class="container-custom">
       <h1 class="text-2xl md:text-3xl font-bold text-neutral-900 mb-6">Checkout</h1>
       
@@ -16,7 +16,7 @@
       <!-- Checkout Process -->
       <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Checkout Steps -->
-        <div class="lg:col-span-2 space-y-6">
+        <div class="lg:col-span-2 space-y-6 min-h-screen">
           <!-- Checkout Progress -->
           <div class="bg-white rounded-lg shadow-sm p-6">
             <div class="flex items-center justify-between">
@@ -389,113 +389,26 @@
                 </div>
               </div>
               
-              <!-- Payment Method Selection -->
-              <div class="mt-6">
-                <h3 class="font-medium text-neutral-800 mb-3">Payment Method</h3>
-                <div class="space-y-3">
-                  <div 
-                    v-for="method in paymentMethods" 
-                    :key="method.id" 
-                    class="border rounded-lg p-4 flex items-center cursor-pointer transition-colors"
-                    :class="paymentMethod === method.id ? 'border-primary-500 bg-primary-50' : 'border-neutral-200 hover:border-primary-300'"
-                    @click="selectPaymentMethod(method.id)"
-                  >
-                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3"
-                         :class="paymentMethod === method.id ? 'border-primary-600' : 'border-neutral-300'">
-                      <div v-if="paymentMethod === method.id" class="w-3 h-3 rounded-full bg-primary-600"></div>
-                    </div>
-                    <div class="flex-grow flex items-center">
-                      <span :class="method.icon + ' text-2xl mr-3'"></span>
-                      <p class="font-medium text-neutral-800">{{ method.name }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <!-- Enhanced Payment Form -->
+              <PaymentForm
+                v-model="paymentData"
+                :disabled="isProcessingPayment"
+                @validation-change="handlePaymentValidation"
+              />
               
-              <!-- Credit Card Form (if credit card selected) -->
-              <div v-if="paymentMethod === 'credit-card'" class="mt-6 p-4 border border-neutral-200 rounded-lg">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="md:col-span-2">
-                    <label for="cardNumber" class="block text-sm font-medium text-neutral-700 mb-1">Card Number <span class="text-accent-500">*</span></label>
-                    <div class="relative">
-                      <input 
-                        type="text" 
-                        id="cardNumber" 
-                        v-model="paymentDetails.cardNumber" 
-                        class="input pl-11" 
-                        :class="{'border-accent-500 focus:ring-accent-500': errors.cardNumber}"
-                        placeholder="1234 5678 9012 3456"
-                        maxlength="19"
-                        @input="formatCardNumber"
-                        required
-                      >
-                      <div class="absolute left-3 top-1/2 transform -translate-y-1/2">
-                        <span v-if="cardType" :class="`i-iconify-${cardType} text-xl`"></span>
-                        <span v-else class="i-iconify-ph-credit-card-fill text-xl text-neutral-400"></span>
-                      </div>
-                      <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <span v-if="paymentDetails.cardNumber" class="i-iconify-ph-check-circle-fill text-lg text-success-500"></span>
-                      </div>
-                    </div>
-                    <p v-if="errors.cardNumber" class="text-accent-600 text-xs mt-1">{{ errors.cardNumber }}</p>
-                  </div>
+              <!-- Payment Terms -->
+              <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex items-start">
+                  <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                  </svg>
                   <div>
-                    <label for="cardName" class="block text-sm font-medium text-neutral-700 mb-1">Name on Card <span class="text-accent-500">*</span></label>
-                    <input 
-                      type="text" 
-                      id="cardName" 
-                      v-model="paymentDetails.cardName" 
-                      class="input" 
-                      :class="{'border-accent-500 focus:ring-accent-500': errors.cardName}"
-                      required
-                    >
-                    <p v-if="errors.cardName" class="text-accent-600 text-xs mt-1">{{ errors.cardName }}</p>
-                  </div>
-                  <div class="grid grid-cols-2 gap-3">
-                    <div>
-                      <label for="expiryDate" class="block text-sm font-medium text-neutral-700 mb-1">Expiry Date <span class="text-accent-500">*</span></label>
-                      <input 
-                        type="text" 
-                        id="expiryDate" 
-                        v-model="paymentDetails.expiryDate" 
-                        class="input" 
-                        :class="{'border-accent-500 focus:ring-accent-500': errors.expiryDate}"
-                        placeholder="MM/YY"
-                        maxlength="5"
-                        @input="formatExpiryDate"
-                        required
-                      >
-                      <p v-if="errors.expiryDate" class="text-accent-600 text-xs mt-1">{{ errors.expiryDate }}</p>
+                    <h4 class="text-sm font-medium text-blue-800 mb-1">Payment Information</h4>
+                    <div class="text-sm text-blue-700 space-y-1">
+                      <p>• Your payment will be processed securely using 256-bit SSL encryption</p>
+                      <p>• No payment will be charged until your order is confirmed</p>
+                      <p>• You can review your order before completing the purchase</p>
                     </div>
-                    <div>
-                      <label for="cvv" class="block text-sm font-medium text-neutral-700 mb-1">CVV <span class="text-accent-500">*</span></label>
-                      <div class="relative">
-                        <input 
-                          type="text" 
-                          id="cvv" 
-                          v-model="paymentDetails.cvv" 
-                          class="input" 
-                          :class="{'border-accent-500 focus:ring-accent-500': errors.cvv}"
-                          placeholder="123"
-                          maxlength="4"
-                          required
-                        >
-                        <button 
-                          type="button" 
-                          class="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-primary-600"
-                          title="CVV is the 3-4 digit security code on the back of your card"
-                        >
-                          <span class="i-iconify-ph-question-fill text-lg"></span>
-                        </button>
-                      </div>
-                      <p v-if="errors.cvv" class="text-accent-600 text-xs mt-1">{{ errors.cvv }}</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="mt-4">
-                  <div class="flex items-center text-xs text-neutral-500">
-                    <span class="i-iconify-ph-lock-fill text-lg mr-1 text-neutral-400"></span>
-                    Your payment information is encrypted and secure
                   </div>
                 </div>
               </div>
@@ -511,7 +424,11 @@
             
             <div class="flex justify-between mt-8">
               <button @click="goToStep(0)" class="btn-outline">Back to Shipping</button>
-              <button @click="goToStep(2)" class="btn-primary" :disabled="!canProceedToNextStep">Continue to Review</button>
+              <button @click="goToStep(2)" class="btn-primary" :disabled="false">Continue to Review</button>
+
+              <div v-if="activeStep === 1 && !paymentValid" class="text-accent-600 text-sm mt-4 p-2 bg-accent-50 rounded-md">
+                <p><span class="i-iconify-ph-warning-circle-fill mr-1"></span> Please complete the payment information before continuing</p>
+              </div>
             </div>
           </div>
           
@@ -680,13 +597,13 @@
         
         <!-- Order Summary -->
         <div class="lg:col-span-1">
-          <div class="bg-white rounded-lg shadow-sm overflow-hidden sticky top-24">
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden lg:sticky lg:top-8 lg:max-h-[calc(100vh-6rem)]">
             <div class="p-4 sm:p-6 border-b border-neutral-200">
               <h2 class="text-lg font-semibold text-neutral-800">Order Summary</h2>
             </div>
             
-            <div class="p-4 sm:p-6">
-              <div v-if="cartItems.length > 0" class="max-h-60 overflow-y-auto mb-4">
+            <div class="p-4 sm:p-6 lg:overflow-y-auto lg:max-h-[calc(100vh-12rem)]">
+              <div v-if="cartItems.length > 0" class="max-h-60 lg:max-h-none overflow-y-auto mb-4">
                 <div v-for="(item, index) in cartItems" :key="index" class="flex items-center py-2 border-b border-neutral-100 last:border-b-0">
                   <img :src="item.image" :alt="item.name" class="w-12 h-12 object-cover rounded-md">
                   <div class="ml-3 flex-1">
@@ -782,9 +699,17 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useCartStore } from '~/stores/cart'
+import { useOrdersStore } from '~/stores/orders'
+import { useNotificationsStore } from '~/stores/notifications'
+import PaymentForm from '~/components/PaymentForm.vue'
 
-// Import cart store
+definePageMeta({
+  middleware: 'auth'
+})
+
+// Import stores
 const cartStore = useCartStore()
+const notifications = useNotificationsStore()
 
 // Checkout steps
 const checkoutSteps = [
@@ -804,6 +729,14 @@ const promoSuccess = ref('')
 const discount = ref(0)
 const errors = ref({})
 const orderNumber = ref('')
+const isProcessingPayment = ref(false)
+const paymentValid = ref(false)
+
+// New payment data for PaymentForm component
+const paymentData = ref({
+  method: 'credit-card',
+  cardDetails: {}
+})
 
 // Cart data from store
 const cartItems = computed(() => cartStore.items)
@@ -924,19 +857,18 @@ const shippingOptions = [
   }
 ]
 
-// Payment methods
+// Payment methods (updated to remove PayPal)
 const paymentMethods = [
   {
     id: 'credit-card',
     name: 'Credit / Debit Card',
-    icon: 'iconify-ph-credit-card-fill'
-  },
-  {
-    id: 'paypal',
-    name: 'PayPal',
-    icon: 'iconify-ph-paypal-logo-fill'
+    description: 'Secure payment with Visa, Mastercard, American Express, or Discover',
+    icon: 'iconify-ph-credit-card-fill',
+    secure: true
   }
 ]
+
+
 
 // Calculate tax and order total
 const selectedShippingOption = computed(() => {
@@ -987,12 +919,8 @@ const canProceedToNextStep = computed(() => {
       }
     }
     
-    if (paymentMethod.value === 'credit-card') {
-      const requiredPaymentFields = ['cardNumber', 'cardName', 'expiryDate', 'cvv']
-      return requiredPaymentFields.every(field => !!paymentDetails.value[field])
-    }
-    
-    return true
+    // Use the PaymentForm validation
+    return paymentValid.value
   }
   
   return true
@@ -1079,7 +1007,7 @@ function validateStep(step) {
     
     // Validate prescription upload if needed
     if (hasPrescriptionItems.value && !formData.value.prescriptionFile) {
-      alert('Please upload a prescription for prescription items')
+      notifications.warning('Please upload a prescription for prescription items')
       isValid = false
     }
   }
@@ -1239,30 +1167,80 @@ function applyPromoCode() {
   }
 }
 
-function placeOrder() {
+// Payment validation handler
+const handlePaymentValidation = (isValid) => {
+  console.log('Payment validation changed:', isValid)
+  paymentValid.value = isValid
+}
+
+
+
+async function placeOrder() {
   // Final validation
   if (!canPlaceOrder.value) {
-    alert('Please complete all required fields before placing your order.')
+    notifications.error('Please complete all required fields before placing your order.')
     return
   }
   
-  // Generate a random order number
-  orderNumber.value = 'MDP-' + Math.floor(100000 + Math.random() * 900000)
+  if (!paymentValid.value) {
+    notifications.error('Please complete your payment information.')
+    return
+  }
   
-  // In a real application, this is where you would send the order to your backend
-  // For this demo, we'll simulate a successful order
-  
-  // Clear the cart
-  cartStore.clearCart()
-  
-  // Go to confirmation step
-  activeStep.value = 3
-  
-  // Scroll to top
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  })
+  try {
+    isProcessingPayment.value = true
+    
+    // Generate a random order number
+    orderNumber.value = 'MDP-' + Math.floor(100000 + Math.random() * 900000)
+    
+    // Prepare order data for API
+    const orderData = {
+      orderNumber: orderNumber.value,
+      items: cartItems.value.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      })),
+      shipping: formData.value,
+      billing: sameAsShipping.value ? formData.value : billingAddress.value,
+      paymentMethod: paymentData.value.method,
+      subtotal: cartTotal.value,
+      tax: tax.value,
+      shippingFee: selectedShippingOption.value.price,
+      total: orderTotal.value
+    }
+    
+    // Process payment using the PaymentForm component first
+    const paymentFormRef = document.querySelector('payment-form')
+    if (paymentFormRef) {
+      await paymentFormRef.processPayment(orderData)
+    }
+    
+    // Create order in database using orders store
+    const ordersStore = useOrdersStore()
+    await ordersStore.createOrder(orderData)
+    
+    notifications.success('Order placed successfully!')
+    
+    // Clear the cart
+    cartStore.clearCart()
+    
+    // Go to confirmation step
+    activeStep.value = 3
+    
+    // Scroll to top
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+    
+  } catch (error) {
+    console.error('Order placement failed:', error)
+    notifications.error('Failed to place order. Please try again.')
+  } finally {
+    isProcessingPayment.value = false
+  }
 }
 
 // Validation helpers
@@ -1363,3 +1341,60 @@ onMounted(() => {
   }
 })
 </script>
+
+<style scoped>
+/* Ensure proper sticky positioning */
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+}
+
+/* Smooth scrolling for the order summary */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Animations */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ensure the grid container has proper height on mobile */
+@media (max-width: 1023px) {
+  .lg\:sticky {
+    position: relative !important;
+    top: auto !important;
+    max-height: none !important;
+  }
+}
+</style>

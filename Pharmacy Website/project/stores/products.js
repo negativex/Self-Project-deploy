@@ -74,19 +74,51 @@ export const useProductsStore = defineStore('products', {
     async fetchProducts(params = {}) {
       this.loading = true
       try {
-        const response = await $fetch('/api/products', { 
-          params: {
-            page: this.pagination.currentPage,
-            limit: this.pagination.itemsPerPage,
-            ...params
-          }
-        })
+        const query = new URLSearchParams()
+        
+        // Add pagination parameters
+        query.append('page', params.page || this.pagination.currentPage)
+        query.append('limit', params.limit || this.pagination.itemsPerPage)
+        
+        // Add filter parameters
+        if (params.category || this.filters.category) {
+          query.append('category', params.category || this.filters.category)
+        }
+        
+        if (params.search) {
+          query.append('search', params.search)
+        }
+        
+        if (params.minPrice !== undefined || this.filters.priceRange.min > 0) {
+          query.append('minPrice', params.minPrice || this.filters.priceRange.min)
+        }
+        
+        if (params.maxPrice !== undefined || this.filters.priceRange.max < 1000) {
+          query.append('maxPrice', params.maxPrice || this.filters.priceRange.max)
+        }
+        
+        if (params.inStock !== undefined) {
+          query.append('inStock', params.inStock)
+        } else if (this.filters.inStock) {
+          query.append('inStock', 'true')
+        }
+        
+        if (params.sortBy) {
+          query.append('sortBy', params.sortBy)
+        }
+        
+        if (params.sortOrder) {
+          query.append('sortOrder', params.sortOrder)
+        }
+
+        const response = await $fetch(`/api/products?${query.toString()}`)
         
         this.products = response.products || response.data || []
         this.pagination = {
-          ...this.pagination,
-          totalPages: response.totalPages || 1,
-          totalItems: response.totalItems || this.products.length
+          currentPage: response.pagination?.page || 1,
+          totalPages: response.pagination?.totalPages || 1,
+          totalItems: response.pagination?.total || this.products.length,
+          itemsPerPage: response.pagination?.limit || this.pagination.itemsPerPage
         }
       } catch (error) {
         console.error('Error fetching products:', error)
@@ -124,27 +156,43 @@ export const useProductsStore = defineStore('products', {
     async searchProducts(query, filters = {}) {
       this.loading = true
       try {
-        const response = await $fetch('/api/products/search', {
-          params: { 
-            q: query, 
-            ...filters,
-            page: this.pagination.currentPage,
-            limit: this.pagination.itemsPerPage
-          }
-        })
+        const searchParams = new URLSearchParams()
+        searchParams.append('search', query)
+        searchParams.append('page', filters.page || this.pagination.currentPage)
+        searchParams.append('limit', filters.limit || this.pagination.itemsPerPage)
+        
+        // Add additional filters
+        if (filters.category) {
+          searchParams.append('category', filters.category)
+        }
+        if (filters.minPrice !== undefined) {
+          searchParams.append('minPrice', filters.minPrice)
+        }
+        if (filters.maxPrice !== undefined) {
+          searchParams.append('maxPrice', filters.maxPrice)
+        }
+        if (filters.sortBy) {
+          searchParams.append('sortBy', filters.sortBy)
+        }
+        if (filters.sortOrder) {
+          searchParams.append('sortOrder', filters.sortOrder)
+        }
+
+        const response = await $fetch(`/api/products/search?${searchParams.toString()}`)
         
         this.searchResults = response.products || response.data || []
         this.pagination = {
-          ...this.pagination,
-          totalPages: response.totalPages || 1,
-          totalItems: response.totalItems || this.searchResults.length
+          currentPage: response.pagination?.page || 1,
+          totalPages: response.pagination?.totalPages || 1,
+          totalItems: response.pagination?.total || this.searchResults.length,
+          itemsPerPage: response.pagination?.limit || this.pagination.itemsPerPage
         }
         
         return this.searchResults
       } catch (error) {
         console.error('Error searching products:', error)
         this.searchResults = []
-        return []
+        throw error
       } finally {
         this.loading = false
       }

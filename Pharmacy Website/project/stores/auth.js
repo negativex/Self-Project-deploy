@@ -28,12 +28,12 @@ export const useAuthStore = defineStore('auth', {  state: () => ({
     async login(credentials) {
       this.loading = true
       try {
-        // Replace with your actual API endpoint
         const response = await $fetch('/api/auth/login', {
           method: 'POST',
           body: credentials
         })
-          this.user = response.user
+        
+        this.user = response.user
         this.token = response.token
         this.refreshToken = response.refreshToken
         this.isAuthenticated = true
@@ -65,7 +65,8 @@ export const useAuthStore = defineStore('auth', {  state: () => ({
           method: 'POST',
           body: userData
         })
-          this.user = response.user
+        
+        this.user = response.user
         this.token = response.token
         this.refreshToken = response.refreshToken
         this.isAuthenticated = true
@@ -129,6 +130,7 @@ export const useAuthStore = defineStore('auth', {  state: () => ({
         this.isAuthenticated = true
       } catch (error) {
         console.error('Fetch user error:', error)
+        // If user fetch fails, clear authentication
         this.logout()
       }
     },
@@ -184,11 +186,15 @@ export const useAuthStore = defineStore('auth', {  state: () => ({
           
           // Check if session is still valid
           if (this.isSessionValid) {
+            this.isAuthenticated = true // Set immediately for UI consistency
             this.fetchUser()
             this.startSessionMonitoring()
           } else {
             // Try to refresh token
-            this.refreshAuthToken()
+            this.refreshAuthToken().catch(() => {
+              // If refresh fails, clean up
+              this.logout()
+            })
           }
         }
       }

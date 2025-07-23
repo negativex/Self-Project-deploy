@@ -143,7 +143,7 @@
           <!-- Product Info -->
           <div class="p-4">
             <!-- Category -->
-            <p class="text-xs text-neutral-500 mb-1">{{ product.category }}</p>
+            <p class="text-xs text-neutral-500 mb-1">{{ product.category?.name || product.category }}</p>
             
             <!-- Product Name -->
             <NuxtLink :to="`/product/${product.slug}`">

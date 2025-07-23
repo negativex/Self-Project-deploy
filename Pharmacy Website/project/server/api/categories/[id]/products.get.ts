@@ -1,79 +1,112 @@
-import { mockProducts, mockCategories } from '../../data/products';
+import prisma from '~/lib/prisma'
 
 export default defineEventHandler(async (event) => {
-  const categoryId = getRouterParam(event, 'id');
-  const query = getQuery(event);
-  const page = parseInt(query.page as string) || 1;
-  const limit = parseInt(query.limit as string) || 12;
-  const sortBy = query.sortBy as string || 'name';
-  const sortOrder = query.sortOrder as string || 'asc';
-  
-  if (!categoryId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Category ID is required'
-    });
-  }
-
-  // Find category
-  const category = mockCategories.find(c => 
-    c.id === parseInt(categoryId) || c.slug === categoryId
-  );
-
-  if (!category) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: 'Category not found'
-    });
-  }
-
-  // Get products for this category
-  let categoryProducts = mockProducts.filter(p => 
-    p.categoryId === category.id
-  );
-
-  // Sorting
-  categoryProducts.sort((a, b) => {
-    let aVal, bVal;
+  try {
+    const categoryId = getRouterParam(event, 'id')
+    const query = getQuery(event)
+    const page = parseInt(query.page as string) || 1
+    const limit = parseInt(query.limit as string) || 12
+    const sortBy = query.sortBy as string || 'name'
+    const sortOrder = query.sortOrder as string || 'asc'
     
-    switch (sortBy) {
-      case 'price':
-        aVal = a.price;
-        bVal = b.price;
-        break;
-      case 'rating':
-        aVal = a.rating;
-        bVal = b.rating;
-        break;
-      case 'reviews':
-        aVal = a.reviewCount;
-        bVal = b.reviewCount;
-        break;
-      case 'name':
-      default:
-        aVal = a.name.toLowerCase();
-        bVal = b.name.toLowerCase();
-        break;
+    if (!categoryId) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Category ID is required'
+      })
     }
 
-    if (sortOrder === 'desc') {
-      return aVal < bVal ? 1 : -1;
+    // Find category first
+    const category = await prisma.category.findFirst({
+      where: {
+        OR: [
+          { id: categoryId },
+          { slug: categoryId }
+        ],
+        isActive: true
+      }
+    })
+
+    if (!category) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Category not found'
+      })
     }
-    return aVal > bVal ? 1 : -1;
-  });
 
-  // Pagination
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + limit;
-  const paginatedProducts = categoryProducts.slice(startIndex, endIndex);
+    // Build orderBy clause
+    const orderBy: any = {}
+    if (sortBy === 'price') {
+      orderBy.price = sortOrder
+    } else if (sortBy === 'name') {
+      orderBy.name = sortOrder
+    } else if (sortBy === 'createdAt') {
+      orderBy.createdAt = sortOrder
+    } else {
+      orderBy.name = 'asc'
+    }
 
-  return {
-    category,
-    products: paginatedProducts,
-    totalItems: categoryProducts.length,
-    totalPages: Math.ceil(categoryProducts.length / limit),
-    currentPage: page,
-    hasNext: endIndex < categoryProducts.length,
-    hasPrev: page > 1
-  };
-});
+    // Get products for this category
+    const products = await prisma.product.findMany({
+      where: {
+        categoryId: category.id,
+        isActive: true
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        },
+        reviews: {
+          select: {
+            rating: true
+          }
+        }
+      },
+      orderBy,
+      skip: (page - 1) * limit,
+      take: limit
+    })
+
+    // Get total count
+    const totalItems = await prisma.product.count({
+      where: {
+        categoryId: category.id,
+        isActive: true
+      }
+    })
+
+    // Calculate average rating and add inStock for each product
+    const productsWithRating = products.map(product => ({
+      ...product,
+      rating: product.reviews.length > 0 
+        ? product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length
+        : 0,
+      reviewCount: product.reviews.length,
+      inStock: product.stock > 0, // Add inStock boolean for frontend compatibility
+      reviews: undefined // Remove reviews array from response
+    }))
+
+    return {
+      products: productsWithRating,
+      category,
+      pagination: {
+        page,
+        limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+        hasNext: page * limit < totalItems,
+        hasPrev: page > 1
+      }
+    }
+  } catch (error) {
+    console.error('Category products fetch error:', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to fetch category products'
+    })
+  }
+})

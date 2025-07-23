@@ -20,7 +20,8 @@
           <div v-if="isAuthenticated" class="relative" @mouseleave="accountDropdownOpen = false">
             <button @mouseenter="accountDropdownOpen = true" 
                     class="flex items-center text-neutral-700 hover:text-primary-600">
-              <span>My Account</span>
+              <span>{{ authStore.getUserRole === 'admin' ? 'Admin Panel' : 'My Account' }}</span>
+              <span v-if="authStore.getUserRole === 'admin'" class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">ADMIN</span>
               <span class="i-iconify-ph-caret-down-fill ml-1"></span>
             </button>
             <div v-if="accountDropdownOpen" 
@@ -30,6 +31,19 @@
               <NuxtLink to="/account/prescriptions" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Prescriptions</NuxtLink>
               <NuxtLink to="/account/medication-reminders" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Med Reminders</NuxtLink>
               <NuxtLink to="/health-assessment" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Health Assessment</NuxtLink>
+              
+              <!-- Admin Links -->
+              <template v-if="authStore.getUserRole === 'admin'">
+                <div class="border-t border-neutral-200 my-2"></div>
+                <div class="px-4 py-1">
+                  <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Admin</span>
+                </div>
+                <NuxtLink to="/admin/products" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Manage Products</NuxtLink>
+                <NuxtLink to="/admin/inventory" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Inventory</NuxtLink>
+                <NuxtLink to="/admin/categories" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Categories</NuxtLink>
+              </template>
+              
+              <div class="border-t border-neutral-200 my-2"></div>
               <button @click="logout" class="block w-full text-left px-4 py-2 hover:bg-neutral-50 text-neutral-700">Logout</button>
             </div>
           </div>
@@ -59,15 +73,6 @@
         </div>
         
         <div class="flex items-center space-x-4">
-          <!-- Search -->
-          <div class="hidden md:block relative w-64 lg:w-80">
-            <input type="text" placeholder="Search for medicines, equipment..." 
-                  class="input pr-10" v-model="searchQuery" @keyup.enter="search">
-            <button @click="search" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-primary-600">
-              <span class="i-iconify-ph-magnifying-glass-bold text-xl"></span>
-            </button>
-          </div>
-          
           <!-- Cart -->
           <div class="relative" @mouseleave="cartDropdownOpen = false">
             <button @mouseenter="cartDropdownOpen = true" class="flex items-center justify-center h-10 w-10 rounded-full hover:bg-neutral-100 relative">
@@ -123,15 +128,6 @@
     <!-- Mobile Menu -->
     <div v-if="mobileMenuOpen" class="lg:hidden bg-white border-t border-neutral-100 animate-slide-up">
       <div class="container-custom py-4">
-        <div class="mb-4">
-          <div class="relative">
-            <input type="text" placeholder="Search products..." class="input pr-10" v-model="searchQuery" @keyup.enter="search">
-            <button @click="search" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-primary-600">
-              <span class="i-iconify-ph-magnifying-glass-bold text-xl"></span>
-            </button>
-          </div>
-        </div>
-        
         <nav class="space-y-2">
           <NuxtLink v-for="item in mainNavItems" :key="item.path" 
                    :to="item.path" 
@@ -203,15 +199,18 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useCartStore } from '~/stores/cart'
+import { useAuthStore } from '~/stores/auth'
 
 const cartStore = useCartStore()
+const authStore = useAuthStore()
 
 // State
 const mobileMenuOpen = ref(false)
 const cartDropdownOpen = ref(false)
 const accountDropdownOpen = ref(false)
-const searchQuery = ref('')
-const isAuthenticated = ref(false) // In real app, get from auth store
+
+// Get authentication status from store
+const isAuthenticated = computed(() => authStore.isLoggedIn)
 
 // Navigation items
 const mainNavItems = [
@@ -246,21 +245,15 @@ const cartItemCount = computed(() => cartStore.itemCount)
 const cartTotal = computed(() => cartStore.total)
 
 // Methods
-const search = () => {
-  if (searchQuery.value.trim()) {
-    navigateTo(`/search?q=${encodeURIComponent(searchQuery.value.trim())}`)
-    searchQuery.value = ''
-    mobileMenuOpen.value = false
-  }
-}
-
 const removeFromCart = (index) => {
   cartStore.removeItem(index)
 }
 
 const logout = () => {
-  // In real app, use auth store to logout
-  isAuthenticated.value = false
+  // Use auth store to logout
+  authStore.logout()
   accountDropdownOpen.value = false
+  // Navigate to home page after logout
+  navigateTo('/')
 }
 </script>

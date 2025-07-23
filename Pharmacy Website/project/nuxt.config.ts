@@ -25,13 +25,21 @@ export default defineNuxtConfig({
     }
   },
   
+  // Temporarily disable problematic features
+  ssr: true,
+  nitro: {
+    experimental: {
+      wasm: true
+    }
+  },
+  
   colorMode: {
     preference: 'light',
     classSuffix: ''
   },
   
   pinia: {
-    autoImports: ['defineStore', 'acceptHMRUpdate']
+    storesDirs: ['./stores/**']
   },
   
   imports: {

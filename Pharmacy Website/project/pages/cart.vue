@@ -210,9 +210,11 @@ definePageMeta({
 
 import { ref, computed, watch } from 'vue'
 import { useCartStore } from '~/stores/cart'
+import { useNotificationsStore } from '~/stores/notifications'
 
-// Import cart store
+// Import stores
 const cartStore = useCartStore()
+const notifications = useNotificationsStore()
 
 // State
 const promoCode = ref('')
@@ -269,7 +271,7 @@ const removeSavedItem = (index) => {
 const updateCart = () => {
   // This function would normally update the cart in the backend
   // For this demo, we'll just show a notification
-  alert('Cart updated successfully')
+  notifications.success('Cart updated successfully')
 }
 
 const applyPromoCode = () => {

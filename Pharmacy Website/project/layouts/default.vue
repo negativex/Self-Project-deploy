@@ -7,6 +7,12 @@
     </main>
     
     <SiteFooter />
+    
+    <!-- Toast notifications -->
+    <ToastContainer />
+    
+    <!-- Session expiry warning -->
+    <SessionExpiryWarning />
   </div>
 </template>
 

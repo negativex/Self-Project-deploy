@@ -31,6 +31,7 @@ model User {
   cartItems    CartItem[]
   reviews      Review[]
   prescriptions Prescription[]
+  medicationReminders MedicationReminder[]
 
   @@map("users")
 }
@@ -186,6 +187,26 @@ model Prescription {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("prescriptions")
+}
+
+model MedicationReminder {
+  id           String   @id @default(cuid())
+  medicationName String
+  dosage       String?
+  frequency    String   // daily, twice-daily, every-8-hours, weekly, etc.
+  timeSlots    String   // JSON array of time slots (e.g., ["08:00", "20:00"])
+  notes        String?
+  isActive     Boolean  @default(true)
+  nextReminder DateTime?
+  lastTaken    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("medication_reminders")
 }
 
 // Enums

@@ -383,9 +383,16 @@ const updateProfile = async () => {
     await authStore.updateProfile(profileForm.value)
     isEditing.value = false
     // Show success message
+    if (process.client) {
+      alert('Profile updated successfully!')
+    }
   } catch (error) {
     console.error('Profile update error:', error)
     // Show error message
+    if (process.client) {
+      const errorMessage = error?.data?.statusMessage || error?.message || 'Failed to update profile'
+      alert('Error: ' + errorMessage)
+    }
   } finally {
     updateLoading.value = false
   }

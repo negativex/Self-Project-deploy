@@ -46,16 +46,16 @@
           <!-- Main Image -->
           <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
             <img
-              :src="selectedImage || product.image || '/placeholder-product.jpg'"
+              :src="selectedImage || (product.images && product.images.length > 0 ? product.images[0] : '/placeholder-product.jpg')"
               :alt="product.name"
               class="w-full h-full object-cover"
             />
           </div>
 
           <!-- Image Thumbnails -->
-          <div v-if="product.gallery && product.gallery.length > 1" class="flex space-x-2 overflow-x-auto">
+          <div v-if="product.images && product.images.length > 1" class="flex space-x-2 overflow-x-auto">
             <button
-              v-for="(image, index) in product.gallery"
+              v-for="(image, index) in product.images"
               :key="index"
               @click="selectedImage = image"
               :class="{ 'ring-2 ring-blue-500': selectedImage === image }"
@@ -350,25 +350,22 @@ const loadProduct = async () => {
     loading.value = true
     const slug = route.params.slug
     
-    // Fetch product by slug from API
-    const { data: productData } = await $fetch(`/api/products?slug=${slug}`)
+    // Fetch product by slug from API (using the correct endpoint)
+    const response = await $fetch(`/api/products/${slug}`)
     
-    if (productData && productData.length > 0) {
-      product.value = productData[0]
+    if (response && response.product) {
+      product.value = response.product
       
       // Set default selected image
-      if (product.value.gallery && product.value.gallery.length > 0) {
-        selectedImage.value = product.value.gallery[0]
+      if (product.value.images && product.value.images.length > 0) {
+        selectedImage.value = product.value.images[0]
       } else {
         selectedImage.value = product.value.image
       }
       
-      // Load related products
-      if (product.value.category?.id) {
-        const { data: relatedData } = await $fetch(`/api/categories/${product.value.category.id}/products`)
-        relatedProducts.value = relatedData
-          .filter(p => p.id !== product.value.id)
-          .slice(0, 4)
+      // Related products are included in the API response
+      if (response.product.relatedProducts) {
+        relatedProducts.value = response.product.relatedProducts
       }
     }
   } catch (error) {
@@ -400,7 +397,7 @@ const addToCart = () => {
     id: product.value.id,
     name: product.value.name,
     price: product.value.price,
-    image: product.value.image,
+    image: product.value.images && product.value.images.length > 0 ? product.value.images[0] : '/placeholder-product.jpg',
     quantity: quantity.value,
     selectedVariant: product.value.variants?.[selectedVariantIndex.value] || null
   }
@@ -422,7 +419,7 @@ const addRelatedToCart = (relatedProduct) => {
     id: relatedProduct.id,
     name: relatedProduct.name,
     price: relatedProduct.price,
-    image: relatedProduct.image,
+    image: relatedProduct.images && relatedProduct.images.length > 0 ? relatedProduct.images[0] : '/placeholder-product.jpg',
     quantity: 1
   }
   
@@ -445,7 +442,7 @@ useSeoMeta({
   description: computed(() => product.value?.description || 'Product details'),
   ogTitle: computed(() => product.value?.name || 'Product'),
   ogDescription: computed(() => product.value?.description || 'Product details'),
-  ogImage: computed(() => product.value?.image || '/placeholder-product.jpg')
+  ogImage: computed(() => product.value?.images && product.value.images.length > 0 ? product.value.images[0] : '/placeholder-product.jpg')
 })
 </script>
 

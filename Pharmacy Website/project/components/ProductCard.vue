@@ -22,7 +22,7 @@
     <!-- Product Image -->
     <NuxtLink :to="`/product/${product.slug}`">
       <div class="aspect-square overflow-hidden">
-        <img :src="product.image" 
+        <img :src="getProductImage(product)" 
              :alt="product.name" 
              class="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105">
       </div>
@@ -97,4 +97,28 @@ const props = defineProps({
 })
 
 defineEmits(['add-to-cart', 'add-to-wishlist', 'quick-view'])
+
+// Helper function to get the correct product image
+const getProductImage = (product) => {
+  if (product.images) {
+    // If images is an array, return the first image
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      return product.images[0]
+    }
+    // If images is a string (JSON), try to parse it
+    if (typeof product.images === 'string') {
+      try {
+        const parsedImages = JSON.parse(product.images)
+        if (Array.isArray(parsedImages) && parsedImages.length > 0) {
+          return parsedImages[0]
+        }
+      } catch {
+        // If parsing fails, return the string as is
+        return product.images
+      }
+    }
+  }
+  // Fallback to image field or placeholder
+  return product.image || '/placeholder-product.jpg'
+}
 </script>

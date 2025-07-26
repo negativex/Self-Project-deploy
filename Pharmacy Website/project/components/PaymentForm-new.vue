@@ -193,6 +193,6 @@ onMounted(() => {
 
 <style scoped>
 .payment-form {
-  max-width: 100%;
+  @apply max-w-full;
 }
 </style>

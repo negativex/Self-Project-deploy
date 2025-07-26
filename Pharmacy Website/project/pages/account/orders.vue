@@ -155,7 +155,7 @@
                     </div>
                     <div>
                       <p class="text-sm text-gray-500">Total</p>
-                      <p class="text-sm font-medium text-gray-900">${{ order.total.toFixed(2) }}</p>
+                      <p class="text-sm font-medium text-gray-900">${{ order.totalAmount.toFixed(2) }}</p>
                     </div>
                     <div>
                       <p class="text-sm text-gray-500">Status</p>
@@ -182,13 +182,13 @@
               <!-- Order Items -->
               <div class="px-6 py-4">
                 <div class="space-y-3">
-                  <div v-for="item in order.items.slice(0, 3)" :key="item.id" 
+                  <div v-for="item in order.orderItems.slice(0, 3)" :key="item.id" 
                        class="flex items-center space-x-4">
-                    <img :src="item.image" :alt="item.name" 
+                    <img :src="item.product?.images?.[0] || '/images/default-product.jpg'" :alt="item.product?.name || 'Product'" 
                          class="w-16 h-16 object-cover rounded-lg border border-gray-200">
                     <div class="flex-1 min-w-0">
-                      <h4 class="text-sm font-medium text-gray-900 truncate">{{ item.name }}</h4>
-                      <p class="text-sm text-gray-500">{{ item.brand }} • {{ item.dosage }}</p>
+                      <h4 class="text-sm font-medium text-gray-900 truncate">{{ item.product?.name || 'Unknown Product' }}</h4>
+                      <p class="text-sm text-gray-500">{{ item.product?.manufacturer || 'Unknown Brand' }}</p>
                       <p class="text-sm text-gray-500">Qty: {{ item.quantity }}</p>
                     </div>
                     <div class="text-sm font-medium text-gray-900">
@@ -196,8 +196,8 @@
                     </div>
                   </div>
                   
-                  <div v-if="order.items.length > 3" class="text-sm text-gray-500 border-t border-gray-200 pt-3">
-                    +{{ order.items.length - 3 }} more items
+                  <div v-if="order.orderItems.length > 3" class="text-sm text-gray-500 border-t border-gray-200 pt-3">
+                    +{{ order.orderItems.length - 3 }} more items
                   </div>
                 </div>
 
@@ -346,7 +346,7 @@ const paginatedOrders = computed(() => {
 const totalPages = computed(() => Math.ceil(filteredOrders.value.length / itemsPerPage))
 
 const totalOrders = computed(() => orders.value.length)
-const totalSpent = computed(() => orders.value.reduce((sum, order) => sum + order.total, 0))
+const totalSpent = computed(() => orders.value.reduce((sum, order) => sum + order.totalAmount, 0))
 const averageOrder = computed(() => totalOrders.value > 0 ? totalSpent.value / totalOrders.value : 0)
 
 // Methods
@@ -375,6 +375,10 @@ const viewOrderDetails = (order) => {
 
 const trackOrder = (order) => {
   navigateTo(`/track-order?order=${order.orderNumber}`)
+}
+
+const canTrackOrder = (order) => {
+  return ['processing', 'shipped'].includes(order.status?.toLowerCase())
 }
 
 const downloadInvoice = async (order) => {

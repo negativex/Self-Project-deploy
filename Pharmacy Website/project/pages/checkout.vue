@@ -391,6 +391,7 @@
               
               <!-- Enhanced Payment Form -->
               <PaymentForm
+                ref="paymentFormRef"
                 v-model="paymentData"
                 :disabled="isProcessingPayment"
                 @validation-change="handlePaymentValidation"
@@ -424,11 +425,7 @@
             
             <div class="flex justify-between mt-8">
               <button @click="goToStep(0)" class="btn-outline">Back to Shipping</button>
-              <button @click="goToStep(2)" class="btn-primary" :disabled="false">Continue to Review</button>
-
-              <div v-if="activeStep === 1 && !paymentValid" class="text-accent-600 text-sm mt-4 p-2 bg-accent-50 rounded-md">
-                <p><span class="i-iconify-ph-warning-circle-fill mr-1"></span> Please complete the payment information before continuing</p>
-              </div>
+              <button @click="goToStep(3)" class="btn-primary" :disabled="!paymentValid">Continue to Review</button>
             </div>
           </div>
           
@@ -722,7 +719,6 @@ const checkoutSteps = [
 // State
 const activeStep = ref(0)
 const sameAsShipping = ref(true)
-const paymentMethod = ref('credit-card')
 const promoCode = ref('')
 const promoError = ref('')
 const promoSuccess = ref('')
@@ -731,12 +727,16 @@ const errors = ref({})
 const orderNumber = ref('')
 const isProcessingPayment = ref(false)
 const paymentValid = ref(false)
+const paymentFormRef = ref(null)
 
 // New payment data for PaymentForm component
 const paymentData = ref({
   method: 'credit-card',
   cardDetails: {}
 })
+
+// Computed property for selected payment method
+const paymentMethod = computed(() => paymentData.value.method || 'credit-card')
 
 // Cart data from store
 const cartItems = computed(() => cartStore.items)
@@ -1212,9 +1212,8 @@ async function placeOrder() {
     }
     
     // Process payment using the PaymentForm component first
-    const paymentFormRef = document.querySelector('payment-form')
-    if (paymentFormRef) {
-      await paymentFormRef.processPayment(orderData)
+    if (paymentFormRef.value) {
+      await paymentFormRef.value.processPayment(orderData)
     }
     
     // Create order in database using orders store

@@ -2,31 +2,24 @@ import prisma from '~/lib/prisma'
 import { verifyAccessToken } from '~/lib/auth'
 
 export default defineEventHandler(async (event) => {
-  if (getMethod(event) !== 'POST') {
-    throw createError({
-      statusCode: 405,
-      statusMessage: 'Method not allowed'
-    })
-  }
-
   try {
-    // Get authorization header
-    const authHeader = getHeader(event, 'authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Get and verify JWT token
+    const authorization = getCookie(event, 'auth-token') || getHeader(event, 'authorization')
+    
+    if (!authorization) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'Authorization token required'
+        statusMessage: 'Authentication required'
       })
     }
 
-    // Verify token and get user info
-    const token = authHeader.split(' ')[1]
-    const decoded = await verifyAccessToken(token)
+    const token = authorization.replace('Bearer ', '')
+    const decoded = verifyAccessToken(token)
     
     if (!decoded || !decoded.userId) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'Invalid or expired token'
+        statusMessage: 'Invalid token'
       })
     }
 
@@ -40,11 +33,50 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Validate required fields
+    if (!orderData.items || !Array.isArray(orderData.items) || orderData.items.length === 0) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Order items are required'
+      })
+    }
+
+    if (!orderData.shipping) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Shipping information is required'
+      })
+    }
+
+    // Validate that all products exist
+    const productIds = orderData.items.map((item: any) => item.id)
+    const existingProducts = await prisma.product.findMany({
+      where: {
+        id: {
+          in: productIds
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        price: true
+      }
+    })
+
+    // Check if all products exist
+    const missingProducts = productIds.filter((id: string) => !existingProducts.find(p => p.id === id))
+    if (missingProducts.length > 0) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: `Products not found: ${missingProducts.join(', ')}`
+      })
+    }
+
     // Generate order number if not provided
-    const orderNumber = orderData.orderNumber || 'ORD-' + Date.now() + '-' + Math.floor(Math.random() * 1000)
+    const orderNumber = orderData.orderNumber || 'MDP-' + Date.now() + '-' + Math.floor(Math.random() * 1000)
 
     // Calculate totals
-    const subtotal = orderData.items?.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) || orderData.subtotal || 0
+    const subtotal = orderData.subtotal || orderData.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0)
     const shippingFee = orderData.shippingFee || 0
     const taxAmount = orderData.tax || subtotal * 0.08 // 8% tax
     const totalAmount = orderData.total || subtotal + shippingFee + taxAmount

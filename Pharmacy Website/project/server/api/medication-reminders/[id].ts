@@ -1,12 +1,18 @@
-import prisma from '~/lib/prisma'
 import { verifyAccessToken } from '~/lib/auth'
+import { updateReminder, deleteReminder, getReminderById } from '~/lib/temp-reminders.js'
 
 export default defineEventHandler(async (event) => {
+  console.log('=== MEDICATION REMINDER API [ID] DEBUG ===')
+  console.log('Method:', getMethod(event))
+  console.log('URL:', getRequestURL(event))
+  console.log('Headers:', getHeaders(event))
+  
   try {
     // Get and verify JWT token
     const authorization = getCookie(event, 'auth-token') || getHeader(event, 'authorization')
     
     if (!authorization) {
+      console.log('No authorization found')
       throw createError({
         statusCode: 401,
         statusMessage: 'Authentication required'
@@ -17,6 +23,7 @@ export default defineEventHandler(async (event) => {
     const decoded = verifyAccessToken(token)
     
     if (!decoded || !decoded.userId) {
+      console.log('Invalid token')
       throw createError({
         statusCode: 401,
         statusMessage: 'Invalid token'
@@ -24,40 +31,51 @@ export default defineEventHandler(async (event) => {
     }
 
     const reminderId = getRouterParam(event, 'id')
+    const method = getMethod(event)
     
-    if (event.node.req.method === 'PATCH') {
-      // Update reminder
+    console.log('Processing:', { method, reminderId, userId: decoded.userId })
+    
+    if (method === 'PATCH') {
+      // Update reminder using temporary storage
       const body = await readBody(event)
+      console.log('PATCH - Update data:', body)
       
-      const reminder = await prisma.medicationReminder.update({
-        where: {
-          id: reminderId,
-          userId: decoded.userId // Ensure user can only update their own reminders
-        },
-        data: {
-          ...body,
-          timeSlots: body.timeSlots ? JSON.stringify(body.timeSlots) : undefined,
-          updatedAt: new Date()
-        }
+      const updatedReminder = updateReminder(reminderId, decoded.userId, {
+        ...body,
+        timeSlots: body.timeSlots ? JSON.stringify(body.timeSlots) : undefined
       })
+      
+      console.log('PATCH - Update result:', updatedReminder)
+      
+      if (!updatedReminder) {
+        throw createError({
+          statusCode: 404,
+          statusMessage: 'Reminder not found'
+        })
+      }
 
       return {
         success: true,
         reminder: {
-          ...reminder,
-          timeSlots: reminder.timeSlots ? JSON.parse(reminder.timeSlots) : []
+          ...updatedReminder,
+          timeSlots: updatedReminder.timeSlots ? JSON.parse(updatedReminder.timeSlots) : []
         }
       }
     }
     
-    if (event.node.req.method === 'DELETE') {
-      // Delete reminder
-      await prisma.medicationReminder.delete({
-        where: {
-          id: reminderId,
-          userId: decoded.userId // Ensure user can only delete their own reminders
-        }
-      })
+    if (method === 'DELETE') {
+      // Delete reminder using temporary storage
+      console.log('DELETE request - Reminder ID:', reminderId, 'User ID:', decoded.userId)
+      const deletedReminder = deleteReminder(reminderId, decoded.userId)
+      
+      console.log('Delete result:', deletedReminder)
+      
+      if (!deletedReminder) {
+        throw createError({
+          statusCode: 404,
+          statusMessage: 'Reminder not found'
+        })
+      }
 
       return {
         success: true,
@@ -65,14 +83,9 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    if (event.node.req.method === 'GET') {
-      // Get specific reminder
-      const reminder = await prisma.medicationReminder.findFirst({
-        where: {
-          id: reminderId,
-          userId: decoded.userId
-        }
-      })
+    if (method === 'GET') {
+      // Get specific reminder using temporary storage
+      const reminder = getReminderById(reminderId, decoded.userId)
 
       if (!reminder) {
         throw createError({
@@ -89,11 +102,17 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-  } catch (error) {
+    // Method not allowed
+    throw createError({
+      statusCode: 405,
+      statusMessage: `Method ${method} not allowed`
+    })
+
+  } catch (error: any) {
     console.error('Error handling medication reminder:', error)
     throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to handle medication reminder'
+      statusCode: error.statusCode || 500,
+      statusMessage: error.statusMessage || 'Failed to handle medication reminder'
     })
   }
 })

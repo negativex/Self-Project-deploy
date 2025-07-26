@@ -2,11 +2,16 @@ import { verifyAccessToken } from '~/lib/auth'
 import { getReminders } from '~/lib/temp-reminders.js'
 
 export default defineEventHandler(async (event) => {
+  console.log('=== MEDICATION REMINDER GET DEBUG ===')
+  console.log('Method:', getMethod(event))
+  console.log('URL:', getRequestURL(event))
+  
   try {
     // Get and verify JWT token
     const authorization = getCookie(event, 'auth-token') || getHeader(event, 'authorization')
     
     if (!authorization) {
+      console.log('❌ No authorization header found')
       throw createError({
         statusCode: 401,
         statusMessage: 'Authentication required'
@@ -17,11 +22,14 @@ export default defineEventHandler(async (event) => {
     const decoded = verifyAccessToken(token)
     
     if (!decoded || !decoded.userId) {
+      console.log('❌ Invalid token or missing userId')
       throw createError({
         statusCode: 401,
         statusMessage: 'Invalid token'
       })
     }
+
+    console.log('✅ Authentication successful - User ID:', decoded.userId)
 
     // Get query parameters
     const query = getQuery(event)
@@ -30,6 +38,13 @@ export default defineEventHandler(async (event) => {
 
     // Get reminders from temporary storage
     const allReminders = getReminders(decoded.userId)
+    console.log('📊 GET reminders - User ID:', decoded.userId, 'Found reminders:', allReminders.length)
+    console.log('📋 All reminders for this user:', allReminders.map(r => ({ 
+      id: r.id, 
+      name: r.medicationName, 
+      userId: r.userId,
+      createdAt: r.createdAt 
+    })))
     const totalItems = allReminders.length
 
     // Apply pagination

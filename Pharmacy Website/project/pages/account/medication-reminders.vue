@@ -7,7 +7,9 @@
         <!-- Add new reminder form -->
         <div class="lg:col-span-1">
           <div class="bg-white rounded-lg shadow-sm p-6">
-            <h2 class="text-lg font-semibold text-neutral-800 mb-4">Add New Reminder</h2>
+            <h2 class="text-lg font-semibold text-neutral-800 mb-4">
+              {{ isEditing ? 'Edit Reminder' : 'Add New Reminder' }}
+            </h2>
             <form @submit.prevent="addReminder" class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-neutral-700 mb-1">Medication Name *</label>
@@ -47,10 +49,20 @@
                 <label class="block text-sm font-medium text-neutral-700 mb-1">Notes</label>
                 <textarea v-model="newReminder.notes" class="input h-20" placeholder="Any additional notes"></textarea>
               </div>
-              <button type="submit" class="btn-primary w-full" :disabled="loading">
-                <span v-if="loading" class="i-iconify-ph-spinner text-lg animate-spin mr-2"></span>
-                Add Reminder
-              </button>
+              <div class="flex gap-2">
+                <button type="submit" class="btn-primary flex-1" :disabled="loading">
+                  <span v-if="loading" class="i-iconify-ph-spinner text-lg animate-spin mr-2"></span>
+                  {{ isEditing ? 'Update Reminder' : 'Add Reminder' }}
+                </button>
+                <button 
+                  v-if="isEditing" 
+                  type="button" 
+                  @click="cancelEdit" 
+                  class="btn-outline px-4"
+                >
+                  Cancel
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -62,6 +74,13 @@
               <div class="flex items-center justify-between">
                 <h2 class="text-lg font-semibold text-neutral-800">Your Active Reminders</h2>
                 <div class="flex items-center gap-2">
+                  <button 
+                    @click="loadReminders"
+                    class="btn-outline text-sm px-3 py-1"
+                    title="Refresh reminders"
+                  >
+                    Refresh
+                  </button>
                   <button 
                     @click="showActive = true" 
                     :class="showActive ? 'btn-primary' : 'btn-outline'"
@@ -165,18 +184,22 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useNotificationsStore } from '~/stores/notifications'
+import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({
   middleware: 'auth'
 })
 
 const notifications = useNotificationsStore()
+const authStore = useAuthStore()
 
 const reminders = ref([])
 const loading = ref(false)
 const showActive = ref(true)
+const isEditing = ref(false)
+const editingReminderId = ref(null)
 
 const newReminder = ref({
   medicationName: '',
@@ -187,22 +210,41 @@ const newReminder = ref({
 })
 
 const filteredReminders = computed(() => {
+  let filtered = reminders.value
   if (showActive.value) {
-    return reminders.value.filter(r => r.isActive)
+    filtered = reminders.value.filter(r => r.isActive)
   }
-  return reminders.value
+  return sortReminders([...filtered])
 })
 
 // Load reminders from API
 const loadReminders = async () => {
   try {
     loading.value = true
-    const { data } = await $fetch('/api/medication-reminders', {
-      query: {
-        isActive: showActive.value
+    const response = await $fetch('/api/medication-reminders', {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`
       }
     })
-    reminders.value = data.reminders || []
+    
+    console.log('=== LOAD REMINDERS DEBUG ===')
+    console.log('API Response:', response)
+    console.log('Reminders from API:', response.reminders)
+    console.log('Number of reminders loaded:', response.reminders?.length || 0)
+    
+    // Calculate next reminder times and sort
+    const processedReminders = (response.reminders || []).map(reminder => ({
+      ...reminder,
+      nextReminder: reminder.isActive ? calculateNextReminder(reminder.frequency, reminder.timeSlots) : null
+    }))
+    
+    reminders.value = processedReminders
+    console.log('Processed reminders with IDs:', reminders.value.map(r => ({ 
+      id: r.id, 
+      name: r.medicationName,
+      idType: typeof r.id 
+    })))
+    console.log('=== END LOAD REMINDERS DEBUG ===')
   } catch (error) {
     console.error('Error loading reminders:', error)
     notifications.error('Failed to load medication reminders')
@@ -215,30 +257,57 @@ const addReminder = async () => {
   try {
     loading.value = true
     
-    if (!newReminder.value.medicationName.trim()) {
-      notifications.error('Please enter a medication name')
+    if (!validateReminder()) {
       return
     }
 
-    const { data } = await $fetch('/api/medication-reminders', {
-      method: 'POST',
-      body: newReminder.value
-    })
+    if (isEditing.value) {
+      // Update existing reminder
+      const response = await $fetch(`/api/medication-reminders/${editingReminderId.value}`, {
+        method: 'PATCH',
+        body: newReminder.value,
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
+      })
 
-    reminders.value.unshift(data.reminder)
-    notifications.success('Medication reminder added successfully!')
+      const index = reminders.value.findIndex(r => r.id === editingReminderId.value)
+      if (index !== -1) {
+        reminders.value[index] = response.reminder
+      }
+      notifications.success('Medication reminder updated successfully!')
+      cancelEdit()
+    } else {
+      // Add new reminder
+      console.log('=== CREATING NEW REMINDER ===')
+      console.log('Request data:', newReminder.value)
+      console.log('Auth token:', authStore.token ? 'EXISTS' : 'MISSING')
+      
+      const response = await $fetch('/api/medication-reminders', {
+        method: 'POST',
+        body: newReminder.value,
+        headers: {
+          Authorization: `Bearer ${authStore.token}`
+        }
+      })
+
+      console.log('✅ CREATE SUCCESS - Response:', response)
+      console.log('New reminder received:', response.reminder)
+      console.log('Current reminders before adding:', reminders.value.length)
+      
+      reminders.value.unshift(response.reminder)
+      
+      console.log('Current reminders after adding:', reminders.value.length)
+      console.log('All reminder IDs:', reminders.value.map(r => r.id))
+      
+      notifications.success('Medication reminder added successfully!')
+    }
     
     // Reset form
-    newReminder.value = {
-      medicationName: '',
-      dosage: '',
-      frequency: 'daily',
-      timeSlots: ['08:00'],
-      notes: ''
-    }
+    resetForm()
   } catch (error) {
-    console.error('Error adding reminder:', error)
-    notifications.error('Failed to add medication reminder')
+    console.error('Error saving reminder:', error)
+    notifications.error(`Failed to ${isEditing.value ? 'update' : 'add'} medication reminder`)
   } finally {
     loading.value = false
   }
@@ -246,14 +315,17 @@ const addReminder = async () => {
 
 const toggleReminder = async (reminder) => {
   try {
-    const { data } = await $fetch(`/api/medication-reminders/${reminder.id}`, {
+    const response = await $fetch(`/api/medication-reminders/${reminder.id}`, {
       method: 'PATCH',
       body: {
         isActive: !reminder.isActive
+      },
+      headers: {
+        Authorization: `Bearer ${authStore.token}`
       }
     })
     
-    reminder.isActive = data.reminder.isActive
+    reminder.isActive = response.reminder.isActive
     notifications.success(`Reminder ${reminder.isActive ? 'resumed' : 'paused'} successfully`)
   } catch (error) {
     console.error('Error toggling reminder:', error)
@@ -262,36 +334,171 @@ const toggleReminder = async (reminder) => {
 }
 
 const deleteReminder = async (reminderId) => {
+  console.log('=== DELETE FUNCTION CALLED ===')
+  console.log('Raw reminderId parameter:', reminderId)
+  console.log('Type of reminderId:', typeof reminderId)
+  console.log('Is undefined?', reminderId === undefined)
+  console.log('Is null?', reminderId === null)
+  
   if (!confirm('Are you sure you want to delete this reminder?')) {
     return
   }
 
   try {
-    await $fetch(`/api/medication-reminders/${reminderId}`, {
-      method: 'DELETE'
+    // Refresh data first to ensure we have the latest state
+    console.log('🔄 Refreshing data before delete...')
+    await loadReminders()
+    
+    console.log('=== DELETE REMINDER DEBUG ===')
+    console.log('Attempting to delete reminder:', { 
+      id: reminderId, 
+      type: typeof reminderId,
+      currentReminders: reminders.value.map(r => ({ id: r.id, name: r.medicationName, type: typeof r.id }))
+    })
+    console.log('Auth token exists:', !!authStore.token)
+    console.log('User info:', { userId: authStore.user?.id, email: authStore.user?.email })
+    
+    // Check if reminderId is valid
+    if (reminderId === undefined || reminderId === null) {
+      console.log('❌ Invalid reminderId - cannot proceed with delete')
+      notifications.error('Invalid reminder ID - cannot delete')
+      return
+    }
+    
+    // Check if reminder exists in current list (after refresh)
+    const reminderExists = reminders.value.find(r => r.id === reminderId)
+    console.log('Reminder exists in current list (after refresh):', !!reminderExists)
+    if (reminderExists) {
+      console.log('Found reminder to delete:', { 
+        id: reminderExists.id, 
+        name: reminderExists.medicationName,
+        userId: reminderExists.userId 
+      })
+    } else {
+      console.log('❌ Reminder not found in current list even after refresh!')
+      console.log('Available reminder IDs:', reminders.value.map(r => r.id))
+      console.log('Looking for ID:', reminderId)
+      notifications.error('Reminder no longer exists - data refreshed')
+      return
+    }
+    
+    const response = await $fetch(`/api/medication-reminders/${reminderId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${authStore.token}`
+      }
     })
     
+    console.log('Delete response:', response)
     reminders.value = reminders.value.filter(r => r.id !== reminderId)
     notifications.success('Reminder deleted successfully')
   } catch (error) {
+    console.error('=== DELETE ERROR ===')
     console.error('Error deleting reminder:', error)
-    notifications.error('Failed to delete reminder')
+    console.log('Error details:', {
+      status: error.status,
+      statusCode: error.statusCode,
+      statusMessage: error.statusMessage,
+      data: error.data
+    })
+    notifications.error('Failed to delete reminder: ' + (error.data?.statusMessage || error.statusMessage || error.message))
   }
 }
 
 const editReminder = (reminder) => {
-  // For now, just populate the form with the existing data
+  isEditing.value = true
+  editingReminderId.value = reminder.id
+  
   newReminder.value = {
     medicationName: reminder.medicationName,
     dosage: reminder.dosage || '',
     frequency: reminder.frequency,
-    timeSlots: reminder.timeSlots || ['08:00'],
+    timeSlots: [...(reminder.timeSlots || ['08:00'])],
     notes: reminder.notes || ''
   }
   
   // Scroll to form
   window.scrollTo({ top: 0, behavior: 'smooth' })
-  notifications.info('Edit the reminder details and click "Add Reminder" to update')
+  notifications.info('Editing reminder - modify details and click "Update Reminder"')
+}
+
+const cancelEdit = () => {
+  isEditing.value = false
+  editingReminderId.value = null
+  resetForm()
+  notifications.info('Edit cancelled')
+}
+
+const resetForm = () => {
+  newReminder.value = {
+    medicationName: '',
+    dosage: '',
+    frequency: 'daily',
+    timeSlots: ['08:00'],
+    notes: ''
+  }
+}
+
+const validateReminder = () => {
+  if (!newReminder.value.medicationName.trim()) {
+    notifications.error('Please enter a medication name')
+    return false
+  }
+  
+  if (!validateTimeSlots()) {
+    return false
+  }
+  
+  return true
+}
+
+const validateTimeSlots = () => {
+  for (const timeSlot of newReminder.value.timeSlots) {
+    if (!timeSlot || !/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(timeSlot)) {
+      notifications.error('Please enter valid time slots (HH:MM format)')
+      return false
+    }
+  }
+  return true
+}
+
+const sortReminders = (reminders) => {
+  return reminders.sort((a, b) => {
+    // Sort by active status first, then by next reminder time
+    if (a.isActive !== b.isActive) {
+      return b.isActive - a.isActive
+    }
+    if (a.nextReminder && b.nextReminder) {
+      return new Date(a.nextReminder) - new Date(b.nextReminder)
+    }
+    return a.medicationName.localeCompare(b.medicationName)
+  })
+}
+
+const calculateNextReminder = (frequency, timeSlots) => {
+  if (!timeSlots || timeSlots.length === 0) return null
+  
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  
+  // Find the next time slot today or tomorrow
+  for (const timeSlot of timeSlots.sort()) {
+    const [hours, minutes] = timeSlot.split(':').map(Number)
+    const reminderTime = new Date(today)
+    reminderTime.setHours(hours, minutes, 0, 0)
+    
+    if (reminderTime > now) {
+      return reminderTime
+    }
+  }
+  
+  // No more times today, get first time tomorrow
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const [hours, minutes] = timeSlots.sort()[0].split(':').map(Number)
+  tomorrow.setHours(hours, minutes, 0, 0)
+  
+  return tomorrow
 }
 
 const addTimeSlot = () => {
@@ -328,11 +535,6 @@ const formatDate = (dateString) => {
 }
 
 onMounted(() => {
-  loadReminders()
-})
-
-// Watch for showActive changes
-watch(showActive, () => {
   loadReminders()
 })
 </script>

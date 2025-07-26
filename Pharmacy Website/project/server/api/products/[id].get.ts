@@ -11,6 +11,8 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    console.log(productId)
+    
     // Find product by ID or slug
     const product = await prisma.product.findFirst({
       where: {

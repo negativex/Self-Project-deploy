@@ -408,6 +408,86 @@ const downloadOrderHistory = async () => {
   }
 }
 
+// Missing functions that need to be implemented:
+
+const canReorder = (order) => {
+  // Check if order can be reordered
+  const reorderableStatuses = ['delivered', 'completed']
+  return reorderableStatuses.includes(order.status?.toLowerCase())
+}
+
+const reorderItems = async (order) => {
+  try {
+    notifications.info('Adding items to cart...')
+    await ordersStore.reorderItems(order.id)
+    notifications.success('Items added to cart successfully!')
+    // Optionally redirect to cart
+    // navigateTo('/cart')
+  } catch (error) {
+    console.error('Error reordering items:', error)
+    notifications.error('Failed to reorder items. Please try again.')
+  }
+}
+
+const canReturn = (order) => {
+  // Check if order can be returned
+  const returnableStatuses = ['delivered', 'completed']
+  if (!returnableStatuses.includes(order.status?.toLowerCase())) {
+    return false
+  }
+  
+  // Check if order is within return window (e.g., 30 days)
+  const orderDate = new Date(order.createdAt)
+  const now = new Date()
+  const daysDifference = Math.floor((now - orderDate) / (1000 * 60 * 60 * 24))
+  
+  return daysDifference <= 30 // 30-day return policy
+}
+
+const initiateReturn = (order) => {
+  // Navigate to return initiation page or show return modal
+  navigateTo(`/returns/initiate?orderId=${order.id}`)
+}
+
+const visiblePages = computed(() => {
+  const pages = []
+  const total = totalPages.value
+  const current = currentPage.value
+  
+  if (total <= 7) {
+    // Show all pages if total is 7 or less
+    for (let i = 1; i <= total; i++) {
+      pages.push(i)
+    }
+  } else {
+    // Show current page with 2 pages before and after, plus first and last
+    const start = Math.max(1, current - 2)
+    const end = Math.min(total, current + 2)
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i)
+    }
+    
+    // Add first page if not already included
+    if (start > 1) {
+      pages.unshift(1)
+      if (start > 2) {
+        pages.splice(1, 0, '...')
+      }
+    }
+    
+    // Add last page if not already included
+    if (end < total) {
+      if (end < total - 1) {
+        pages.push('...')
+      }
+      pages.push(total)
+    }
+  }
+  
+  return pages
+})
+
 // Load orders on mount
 onMounted(async () => {
   loading.value = true

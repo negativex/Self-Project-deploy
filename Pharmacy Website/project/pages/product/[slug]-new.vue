@@ -299,7 +299,7 @@ onMounted(async () => {
 })
 
 useHead({
-  title: () => product.value ? `${product.value.name} - MediPharm` : 'Product Not Found - MediPharm',
+  title: () => product.value ? `${product.value.name} - Long Châu` : 'Product Not Found - Long Châu',
   meta: [
     {
       name: 'description',
@@ -307,7 +307,7 @@ useHead({
     },
     {
       property: 'og:title',
-      content: () => product.value ? `${product.value.name} - MediPharm` : 'Product Not Found'
+      content: () => product.value ? `${product.value.name} - Long Châu` : 'Product Not Found'
     },
     {
       property: 'og:description',

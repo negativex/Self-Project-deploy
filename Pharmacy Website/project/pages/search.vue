@@ -440,18 +440,18 @@ watch(() => route.query.q, (newQuery) => {
 useHead({
   title: computed(() => {
     if (hasSearched.value && currentSearchQuery.value) {
-      return `Search Results for "${currentSearchQuery.value}" - MediPharm`
+      return `Search Results for "${currentSearchQuery.value}" - Long Châu`
     }
-    return 'Search Products - MediPharm'
+    return 'Search Products - Long Châu'
   }),
   meta: [
     {
       name: 'description',
       content: computed(() => {
         if (hasSearched.value && currentSearchQuery.value) {
-          return `Search results for "${currentSearchQuery.value}". Find medications, supplements, and health products at MediPharm.`
+          return `Search results for "${currentSearchQuery.value}". Find medications, supplements, and health products at Long Châu.`
         }
-        return 'Search for medications, supplements, and health products at MediPharm online pharmacy.'
+        return 'Search for medications, supplements, and health products at Long Châu online pharmacy.'
       })
     }
   ]

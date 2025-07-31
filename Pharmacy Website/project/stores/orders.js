@@ -52,17 +52,47 @@ export const useOrdersStore = defineStore('orders', {
       this.loading = true
       try {
         const authStore = useAuthStore()
-        const response = await $fetch('/api/orders', {
-          method: 'POST',
-          body: orderData,
-          headers: {
-            Authorization: `Bearer ${authStore.token}`
-          }
-        })
+        const currentUserId = authStore.user?.id || 'demo-user'
         
-        const newOrder = response.order || response
+        // Create order with proper structure
+        const newOrder = {
+          id: Date.now().toString(), // Simple ID generation for demo
+          ...orderData,
+          userId: currentUserId,
+          createdAt: orderData.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          status: orderData.status || 'pending'
+        }
+        
+        // Save to both API and localStorage for persistence
+        if (process.client) {
+          // Get user-specific orders key
+          const ordersKey = `pharmacy-orders-${currentUserId}`
+          const existingOrders = JSON.parse(localStorage.getItem(ordersKey) || '[]')
+          existingOrders.push(newOrder)
+          localStorage.setItem(ordersKey, JSON.stringify(existingOrders))
+          
+          // Also update global orders list for backward compatibility
+          const globalOrders = JSON.parse(localStorage.getItem('pharmacy-orders') || '[]')
+          globalOrders.push(newOrder)
+          localStorage.setItem('pharmacy-orders', JSON.stringify(globalOrders))
+        }
+        
         this.orders.push(newOrder)
         this.currentOrder = newOrder
+        
+        // Try to create order via API as well
+        try {
+          await $fetch('/api/orders', {
+            method: 'POST',
+            body: newOrder,
+            headers: authStore.token ? {
+              Authorization: `Bearer ${authStore.token}`
+            } : {}
+          })
+        } catch (apiError) {
+          console.warn('API order creation failed, but order saved locally:', apiError)
+        }
         
         return newOrder
       } catch (error) {
@@ -76,15 +106,56 @@ export const useOrdersStore = defineStore('orders', {
     async fetchOrders(params = {}) {
       this.loading = true
       try {
-        const authStore = useAuthStore()
-        const response = await $fetch('/api/orders', {
-          params,
-          headers: {
-            Authorization: `Bearer ${authStore.token}`
-          }
-        })
+        // Get auth store safely
+        let authStore
+        let currentUserId = 'demo-user'
         
-        this.orders = response.orders || response.data || []
+        try {
+          authStore = useAuthStore()
+          currentUserId = authStore.user?.id || 'demo-user'
+        } catch (authError) {
+          console.warn('Auth store not available, using demo user:', authError)
+        }
+        
+        // Try to fetch from API first
+        let apiOrders = []
+        try {
+          apiOrders = await $fetch('/api/orders', {
+            headers: (authStore && authStore.token) ? {
+              Authorization: `Bearer ${authStore.token}`
+            } : {}
+          })
+        } catch (apiError) {
+          console.warn('API orders fetch failed, loading from localStorage:', apiError)
+        }
+        
+        // Load from user-specific localStorage as fallback
+        if (process.client) {
+          const ordersKey = `pharmacy-orders-${currentUserId}`
+          const existingOrders = JSON.parse(localStorage.getItem(ordersKey) || '[]')
+          
+          console.log('Loading orders for user:', currentUserId)
+          console.log('Orders key:', ordersKey)
+          console.log('Existing orders found:', existingOrders.length)
+          
+          // If API failed, use localStorage orders
+          if (apiOrders.length === 0) {
+            this.orders = existingOrders.filter(order => 
+              order.userId === currentUserId
+            )
+          } else {
+            // Merge API orders with local orders (prefer API)
+            const localOrderIds = existingOrders.map(o => o.id)
+            const newApiOrders = apiOrders.filter(o => !localOrderIds.includes(o.id))
+            this.orders = [...existingOrders, ...newApiOrders].filter(order => 
+              order.userId === currentUserId
+            )
+          }
+          
+          console.log('Final orders loaded:', this.orders.length)
+        } else {
+          this.orders = apiOrders
+        }
       } catch (error) {
         console.error('Error fetching orders:', error)
         this.orders = []

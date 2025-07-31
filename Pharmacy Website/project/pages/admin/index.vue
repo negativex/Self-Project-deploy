@@ -278,7 +278,7 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Admin Dashboard - MediPharm',
+  title: 'Admin Dashboard - Long Châu',
   meta: [
     { name: 'description', content: 'Admin dashboard for managing pharmacy operations.' }
   ]

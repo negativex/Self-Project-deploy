@@ -94,16 +94,6 @@
                   </NuxtLink>
                 </li>
                 <li>
-                  <NuxtLink to="/account/payment-methods" 
-                           class="flex items-center px-3 py-2 text-sm font-medium rounded-md"
-                           :class="$route.path === '/account/payment-methods' ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                    </svg>
-                    Payment Methods
-                  </NuxtLink>
-                </li>
-                <li>
                   <NuxtLink to="/account/settings" 
                            class="flex items-center px-3 py-2 text-sm font-medium rounded-md"
                            :class="$route.path === '/account/settings' ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'">
@@ -330,7 +320,7 @@ definePageMeta({
 })
 
 useHead({
-  title: 'My Account - MediPharm',
+  title: 'My Account - Long Châu',
   meta: [
     { name: 'description', content: 'Manage your account, view orders, prescriptions, and update your profile information.' }
   ]

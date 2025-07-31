@@ -314,7 +314,7 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Account Settings - MediPharm',
+  title: 'Account Settings - Long Châu',
   meta: [
     { name: 'description', content: 'Manage your account settings, privacy preferences, and security options.' }
   ]

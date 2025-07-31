@@ -430,18 +430,18 @@ onMounted(() => {
 useHead({
   title: computed(() => {
     if (category.value) {
-      return `${category.value.name} - MediPharm Online Pharmacy`
+      return `${category.value.name} - Long Châu Online Pharmacy`
     }
-    return 'Category - MediPharm'
+    return 'Category - Long Châu'
   }),
   meta: [
     {
       name: 'description',
       content: computed(() => {
         if (category.value) {
-          return `${category.value.description} Shop ${category.value.name.toLowerCase()} products at MediPharm online pharmacy.`
+          return `${category.value.description} Shop ${category.value.name.toLowerCase()} products at Long Châu online pharmacy.`
         }
-        return 'Browse products by category at MediPharm online pharmacy.'
+        return 'Browse products by category at Long Châu online pharmacy.'
       })
     }
   ]

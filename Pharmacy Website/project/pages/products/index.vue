@@ -113,7 +113,7 @@
                 />
               </div>
             </div>
-
+        
             <!-- Brand Filter -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Brand</label>
@@ -127,7 +127,7 @@
                 </option>
               </select>
             </div>
-
+        
             <!-- Availability Filter -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Availability</label>
@@ -437,11 +437,11 @@ watch(() => route.query, (newQuery) => {
 })
 
 useHead({
-  title: () => `${pageTitle.value} - MediPharm`,
+  title: () => `${pageTitle.value} - Long Châu`,
   meta: [
     {
       name: 'description',
-      content: () => `Browse ${pageTitle.value.toLowerCase()} at MediPharm. Find quality medications and health products with fast delivery.`
+      content: () => `Browse ${pageTitle.value.toLowerCase()} at Long Châu. Find quality medications and health products with fast delivery.`
     }
   ]
 })

@@ -32,8 +32,8 @@
           </div>
           <h3 class="text-lg font-semibold text-neutral-900 mb-2">Call Us</h3>
           <p class="text-neutral-600 mb-3">Speak directly with our pharmacy team</p>
-          <a href="tel:+18005551234" class="text-primary-600 hover:text-primary-700 font-medium">
-            1-800-555-1234
+          <a href="tel:+84287302345" class="text-primary-600 hover:text-primary-700 font-medium">
+            (028) 73023456
           </a>
           <p class="text-sm text-neutral-500 mt-2">Mon-Fri: 8AM-8PM<br>Sat-Sun: 9AM-6PM</p>
         </div>
@@ -44,8 +44,8 @@
           </div>
           <h3 class="text-lg font-semibold text-neutral-900 mb-2">Email Us</h3>
           <p class="text-neutral-600 mb-3">Send us a message anytime</p>
-          <a href="mailto:support@longchau.com" class="text-primary-600 hover:text-primary-700 font-medium">
-            support@longchau.com
+          <a href="mailto:sale@nhathuoclongchau.com.vn" class="text-primary-600 hover:text-primary-700 font-medium">
+            sale@nhathuoclongchau.com.vn
           </a>
           <p class="text-sm text-neutral-500 mt-2">We respond within 24 hours</p>
         </div>

@@ -15,7 +15,7 @@ export default defineNuxtConfig({
   
   app: {
     head: {
-      title: 'MediPharm - Online Pharmacy & Medical Equipment',
+      title: 'Long Châu - Online Pharmacy & Medical Equipment',
       meta: [
         { name: 'description', content: 'Your trusted online pharmacy for medications and medical equipment' }
       ],
@@ -44,6 +44,11 @@ export default defineNuxtConfig({
   
   imports: {
     dirs: ['stores']
+  },
+  
+  components: {
+    global: true,
+    dirs: ['~/components']
   },
   
   tailwindcss: {

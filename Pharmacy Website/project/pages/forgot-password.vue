@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="text-center">
         <NuxtLink to="/" class="inline-block">
-          <h1 class="text-3xl font-bold text-purple-600">MediPharm</h1>
+          <h1 class="text-3xl font-bold text-purple-600">Long Châu</h1>
         </NuxtLink>
         <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
           Reset your password
@@ -101,9 +101,9 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Forgot Password - MediPharm',
+  title: 'Forgot Password - Long Châu',
   meta: [
-    { name: 'description', content: 'Reset your MediPharm account password. Enter your email to receive a password reset link.' }
+    { name: 'description', content: 'Reset your Long Châu account password. Enter your email to receive a password reset link.' }
   ]
 })
 

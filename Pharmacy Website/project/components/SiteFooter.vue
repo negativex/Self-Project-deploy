@@ -4,7 +4,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <!-- Company Info -->
         <div>
-          <h4 class="text-white font-semibold text-lg mb-4">MediPharm</h4>
+          <h4 class="text-white font-semibold text-lg mb-4">Long Châu</h4>
           <p class="mb-4 text-sm leading-relaxed">
             Your trusted online pharmacy for medications and medical equipment. We're committed to providing quality healthcare products with excellent service.
           </p>
@@ -67,15 +67,15 @@
           <ul class="space-y-3 text-sm">
             <li class="flex">
               <span class="i-iconify-ph-map-pin-fill text-xl mr-3 text-primary-400 mt-0.5"></span>
-              <span>123 MediPharm Street, Health Avenue, NY 10001, USA</span>
+              <span>379-381 Hai Bà Trưng, P. Xuân Hoà, TP. Hồ Chí Minh</span>
             </li>
             <li class="flex">
               <span class="i-iconify-ph-phone-fill text-xl mr-3 text-primary-400 mt-0.5"></span>
-              <span>1-800-555-1234</span>
+              <span>(028) 73023456</span>
             </li>
             <li class="flex">
               <span class="i-iconify-ph-envelope-fill text-xl mr-3 text-primary-400 mt-0.5"></span>
-              <span>support@medipharm.com</span>
+              <span>sale@nhathuoclongchau.com.vn</span>
             </li>
             <li class="flex">
               <span class="i-iconify-ph-clock-fill text-xl mr-3 text-primary-400 mt-0.5"></span>
@@ -95,7 +95,7 @@
       
       <!-- Bottom Footer -->
       <div class="mt-8 flex flex-col md:flex-row justify-between items-center">
-        <p class="text-sm mb-4 md:mb-0">&copy; 2025 MediPharm. All rights reserved.</p>
+        <p class="text-sm mb-4 md:mb-0">&copy; 2025 Long Châu. All rights reserved.</p>
         <div class="flex flex-wrap justify-center gap-4 text-sm">
           <NuxtLink to="/privacy-policy" class="hover:text-white">Privacy Policy</NuxtLink>
           <NuxtLink to="/terms-of-service" class="hover:text-white">Terms of Service</NuxtLink>

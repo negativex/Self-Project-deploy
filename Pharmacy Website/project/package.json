@@ -18,14 +18,13 @@
     "@nuxt/image": "^1.0.0",
     "@nuxtjs/tailwindcss": "^6.8.0",
     "@pinia/nuxt": "^0.5.1",
-    "@prisma/client": "^6.12.0",
+    "@prisma/client": "^6.13.0",
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.17.0",
     "nuxt": "^3.13.0",
     "pinia": "^2.1.6",
     "vue": "^3.3.4",
-    "vue-router": "^4.2.4",
     "zod": "^4.0.5"
   },
   "devDependencies": {
@@ -36,7 +35,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@vueuse/core": "^10.3.0",
     "@vueuse/nuxt": "^10.3.0",
-    "prisma": "^6.12.0",
+    "prisma": "^6.13.0",
     "tsx": "^4.20.3"
   }
 }

@@ -115,8 +115,8 @@
     <section class="py-12 md:py-16 bg-white">
       <div class="container-custom">
         <div class="text-center mb-12">
-          <h2 class="text-2xl md:text-3xl font-bold text-neutral-900 mb-3">Why Choose MediPharm?</h2>
-          <p class="text-neutral-600 max-w-2xl mx-auto">We're committed to providing the highest quality healthcare products with exceptional service.</p>
+          <h2 class="text-2xl md:text-3xl font-bold text-neutral-900 mb-3">Why Choose Long Châu?</h2>
+          <p class="text-neutral-600 max-w-2xl mx-auto">Experience the convenience and reliability of Vietnam's trusted online pharmacy.</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
@@ -175,8 +175,8 @@
     <section class="py-12 md:py-16 bg-primary-50">
       <div class="container-custom">
         <div class="text-center mb-12">
-          <h2 class="text-2xl md:text-3xl font-bold text-neutral-900 mb-3">What Our Customers Say</h2>
-          <p class="text-neutral-600 max-w-2xl mx-auto">Thousands of satisfied customers trust MediPharm for their healthcare needs.</p>
+          <h2 class="text-2xl md:text-3xl font-bold text-neutral-900 mb-3">Khách Hàng Nói Gì Về Chúng Tôi</h2>
+          <p class="text-neutral-600 max-w-2xl mx-auto">Hàng nghìn khách hàng hài lòng tin tưởng Long Châu cho nhu cầu chăm sóc sức khỏe của họ.</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -209,7 +209,7 @@
                 <input type="email" placeholder="Your email address" class="input bg-white/10 text-white placeholder:text-primary-200 border-primary-400 focus:ring-white flex-grow" />
                 <button class="btn bg-white text-primary-700 hover:bg-primary-50">Subscribe</button>
               </div>
-              <p class="text-xs text-primary-200 mt-3">By subscribing, you agree to our Privacy Policy and consent to receive updates from MediPharm.</p>
+              <p class="text-xs text-primary-200 mt-3">By subscribing, you agree to our Privacy Policy and consent to receive updates from Long Châu.</p>
             </div>
             <div class="hidden md:flex justify-end">
               <img src="https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg" alt="Health Newsletter" class="w-48 h-48 object-cover rounded-full">
@@ -398,19 +398,19 @@ const testimonials = [
   {
     name: 'Emily Johnson',
     location: 'New York, USA',
-    content: 'MediPharm has made managing my chronic condition so much easier. The automatic refills and fast delivery ensure I never miss a dose. Their customer service is exceptional!',
+    content: 'Long Châu đã giúp việc quản lý bệnh mãn tính của tôi trở nên dễ dàng hơn rất nhiều. Việc tự động gia hạn đơn thuốc và giao hàng nhanh đảm bảo tôi không bao giờ bỏ lỡ liều uống. Dịch vụ khách hàng của họ thật tuyệt vời!',
     avatar: 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg'
   },
   {
     name: 'Michael Patel',
     location: 'Chicago, USA',
-    content: "I've been using MediPharm for over a year now and couldn't be happier. Their prices are competitive, and the prescription upload process is incredibly simple.",
+    content: 'Tôi đã sử dụng Long Châu được hơn một năm và không thể hài lòng hơn. Giá cả của họ cạnh tranh và quy trình tải lên đơn thuốc cực kỳ đơn giản.',
     avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg'
   },
   {
     name: 'Sarah Richardson',
     location: 'Boston, USA',
-    content: 'As someone who takes multiple medications, MediPharm has been a lifesaver. Their pharmacists are always available to answer questions about potential drug interactions.',
+    content: 'Là người phải dùng nhiều loại thuốc, Long Châu thực sự là cứu cánh của tôi. Các dược sĩ của họ luôn sẵn sàng trả lời các câu hỏi về tương tác thuốc tiềm tàng.',
     avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg'
   }
 ]

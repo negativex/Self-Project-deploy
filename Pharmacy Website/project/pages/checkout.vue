@@ -125,7 +125,7 @@
                     <p v-if="errors.lastName" class="text-accent-600 text-xs mt-1">{{ errors.lastName }}</p>
                   </div>
                   <div class="md:col-span-2">
-                    <label for="address" class="block text-sm font-medium text-neutral-700 mb-1">Street Address <span class="text-accent-500">*</span></label>
+                    <label for="address" class="block text-sm font-medium text-neutral-700 mb-1">Address <span class="text-accent-500">*</span></label>
                     <input 
                       type="text" 
                       id="address" 
@@ -137,35 +137,7 @@
                     <p v-if="errors.address" class="text-accent-600 text-xs mt-1">{{ errors.address }}</p>
                   </div>
                   <div>
-                    <label for="city" class="block text-sm font-medium text-neutral-700 mb-1">City <span class="text-accent-500">*</span></label>
-                    <input 
-                      type="text" 
-                      id="city" 
-                      v-model="formData.city" 
-                      class="input" 
-                      :class="{'border-accent-500 focus:ring-accent-500': errors.city}"
-                      required
-                    >
-                    <p v-if="errors.city" class="text-accent-600 text-xs mt-1">{{ errors.city }}</p>
-                  </div>
-                  <div>
-                    <label for="state" class="block text-sm font-medium text-neutral-700 mb-1">State <span class="text-accent-500">*</span></label>
-                    <select 
-                      id="state" 
-                      v-model="formData.state" 
-                      class="input" 
-                      :class="{'border-accent-500 focus:ring-accent-500': errors.state}"
-                      required
-                    >
-                      <option value="" disabled selected>Select State</option>
-                      <option v-for="state in usStates" :key="state.abbr" :value="state.abbr">
-                        {{ state.name }}
-                      </option>
-                    </select>
-                    <p v-if="errors.state" class="text-accent-600 text-xs mt-1">{{ errors.state }}</p>
-                  </div>
-                  <div>
-                    <label for="zipCode" class="block text-sm font-medium text-neutral-700 mb-1">ZIP Code <span class="text-accent-500">*</span></label>
+                    <label for="zipCode" class="block text-sm font-medium text-neutral-700 mb-1">Postal Code <span class="text-accent-500">*</span></label>
                     <input 
                       type="text" 
                       id="zipCode" 
@@ -185,8 +157,7 @@
                       :class="{'border-accent-500 focus:ring-accent-500': errors.country}"
                       required
                     >
-                      <option value="US">United States</option>
-                      <option value="CA">Canada</option>
+                      <option value="VN">Vietnam</option>
                     </select>
                     <p v-if="errors.country" class="text-accent-600 text-xs mt-1">{{ errors.country }}</p>
                   </div>
@@ -333,35 +304,7 @@
                     <p v-if="errors.billingAddress" class="text-accent-600 text-xs mt-1">{{ errors.billingAddress }}</p>
                   </div>
                   <div>
-                    <label for="billingCity" class="block text-sm font-medium text-neutral-700 mb-1">City <span class="text-accent-500">*</span></label>
-                    <input 
-                      type="text" 
-                      id="billingCity" 
-                      v-model="billingAddress.city" 
-                      class="input" 
-                      :class="{'border-accent-500 focus:ring-accent-500': errors.billingCity}"
-                      required
-                    >
-                    <p v-if="errors.billingCity" class="text-accent-600 text-xs mt-1">{{ errors.billingCity }}</p>
-                  </div>
-                  <div>
-                    <label for="billingState" class="block text-sm font-medium text-neutral-700 mb-1">State <span class="text-accent-500">*</span></label>
-                    <select 
-                      id="billingState" 
-                      v-model="billingAddress.state" 
-                      class="input" 
-                      :class="{'border-accent-500 focus:ring-accent-500': errors.billingState}"
-                      required
-                    >
-                      <option value="" disabled selected>Select State</option>
-                      <option v-for="state in usStates" :key="state.abbr" :value="state.abbr">
-                        {{ state.name }}
-                      </option>
-                    </select>
-                    <p v-if="errors.billingState" class="text-accent-600 text-xs mt-1">{{ errors.billingState }}</p>
-                  </div>
-                  <div>
-                    <label for="billingZipCode" class="block text-sm font-medium text-neutral-700 mb-1">ZIP Code <span class="text-accent-500">*</span></label>
+                    <label for="billingZipCode" class="block text-sm font-medium text-neutral-700 mb-1">Postal Code <span class="text-accent-500">*</span></label>
                     <input 
                       type="text" 
                       id="billingZipCode" 
@@ -381,8 +324,7 @@
                       :class="{'border-accent-500 focus:ring-accent-500': errors.billingCountry}"
                       required
                     >
-                      <option value="US">United States</option>
-                      <option value="CA">Canada</option>
+                      <option value="VN">Vietnam</option>
                     </select>
                     <p v-if="errors.billingCountry" class="text-accent-600 text-xs mt-1">{{ errors.billingCountry }}</p>
                   </div>
@@ -465,7 +407,7 @@
                 <div class="bg-neutral-50 rounded-lg p-3 text-sm">
                   <p class="font-medium text-neutral-800">{{ formData.firstName }} {{ formData.lastName }}</p>
                   <p>{{ formData.address }}</p>
-                  <p>{{ formData.city }}, {{ formData.state }} {{ formData.zipCode }}</p>
+                  <p>{{ formData.zipCode }}</p>
                   <p>{{ getCountryName(formData.country) }}</p>
                   <p class="mt-1">{{ formData.email }}</p>
                   <p>{{ formData.phone }}</p>
@@ -508,7 +450,7 @@
                     <p class="font-medium mt-3">Billing Address:</p>
                     <p>{{ billingAddress.firstName }} {{ billingAddress.lastName }}</p>
                     <p>{{ billingAddress.address }}</p>
-                    <p>{{ billingAddress.city }}, {{ billingAddress.state }} {{ billingAddress.zipCode }}</p>
+                    <p>{{ billingAddress.zipCode }}</p>
                     <p>{{ getCountryName(billingAddress.country) }}</p>
                   </div>
                   <div class="mt-2" v-else>
@@ -750,10 +692,8 @@ const formData = ref({
   firstName: '',
   lastName: '',
   address: '',
-  city: '',
-  state: '',
   zipCode: '',
-  country: 'US',
+  country: 'VN',
   shippingMethod: 'standard',
   specialInstructions: '',
   prescriptionFile: null
@@ -764,10 +704,8 @@ const billingAddress = ref({
   firstName: '',
   lastName: '',
   address: '',
-  city: '',
-  state: '',
   zipCode: '',
-  country: 'US'
+  country: 'VN'
 })
 
 // Payment details
@@ -902,7 +840,7 @@ const cardType = computed(() => {
 const canProceedToNextStep = computed(() => {
   if (activeStep.value === 0) {
     // Shipping validation
-    const requiredFields = ['email', 'phone', 'firstName', 'lastName', 'address', 'city', 'state', 'zipCode', 'country']
+    const requiredFields = ['email', 'phone', 'firstName', 'lastName', 'address', 'zipCode', 'country']
     const isAllRequired = requiredFields.every(field => !!formData.value[field])
     const isShippingSelected = !!formData.value.shippingMethod
     const isPrescriptionUploaded = !hasPrescriptionItems.value || (hasPrescriptionItems.value && formData.value.prescriptionFile)
@@ -913,7 +851,7 @@ const canProceedToNextStep = computed(() => {
   if (activeStep.value === 1) {
     // Payment validation
     if (!sameAsShipping.value) {
-      const requiredBillingFields = ['firstName', 'lastName', 'address', 'city', 'state', 'zipCode', 'country']
+      const requiredBillingFields = ['firstName', 'lastName', 'address', 'zipCode', 'country']
       if (!requiredBillingFields.every(field => !!billingAddress.value[field])) {
         return false
       }
@@ -983,25 +921,12 @@ function validateStep(step) {
     }
     
     if (!formData.value.address) {
-      errors.value.address = 'Street address is required'
-      isValid = false
-    }
-    
-    if (!formData.value.city) {
-      errors.value.city = 'City is required'
-      isValid = false
-    }
-    
-    if (!formData.value.state) {
-      errors.value.state = 'State is required'
+      errors.value.address = 'Address is required'
       isValid = false
     }
     
     if (!formData.value.zipCode) {
-      errors.value.zipCode = 'ZIP code is required'
-      isValid = false
-    } else if (!isValidZipCode(formData.value.zipCode)) {
-      errors.value.zipCode = 'Please enter a valid ZIP code'
+      errors.value.zipCode = 'Postal code is required'
       isValid = false
     }
     
@@ -1028,25 +953,12 @@ function validateStep(step) {
       }
       
       if (!billingAddress.value.address) {
-        errors.value.billingAddress = 'Street address is required'
-        isValid = false
-      }
-      
-      if (!billingAddress.value.city) {
-        errors.value.billingCity = 'City is required'
-        isValid = false
-      }
-      
-      if (!billingAddress.value.state) {
-        errors.value.billingState = 'State is required'
+        errors.value.billingAddress = 'Address is required'
         isValid = false
       }
       
       if (!billingAddress.value.zipCode) {
-        errors.value.billingZipCode = 'ZIP code is required'
-        isValid = false
-      } else if (!isValidZipCode(billingAddress.value.zipCode)) {
-        errors.value.billingZipCode = 'Please enter a valid ZIP code'
+        errors.value.billingZipCode = 'Postal code is required'
         isValid = false
       }
     }
@@ -1095,6 +1007,7 @@ function getFormattedDate(daysFromNow) {
 
 function getCountryName(countryCode) {
   const countries = {
+    'VN': 'Vietnam',
     'US': 'United States',
     'CA': 'Canada'
   }
@@ -1208,25 +1121,32 @@ async function placeOrder() {
       subtotal: cartTotal.value,
       tax: tax.value,
       shippingFee: selectedShippingOption.value.price,
-      total: orderTotal.value
+      total: orderTotal.value,
+      status: 'pending',
+      createdAt: new Date().toISOString()
     }
     
     // Process payment using the PaymentForm component first
-    if (paymentFormRef.value) {
+    if (paymentFormRef.value && typeof paymentFormRef.value.processPayment === 'function') {
       await paymentFormRef.value.processPayment(orderData)
     }
     
     // Create order in database using orders store
     const ordersStore = useOrdersStore()
-    await ordersStore.createOrder(orderData)
+    const createdOrder = await ordersStore.createOrder(orderData)
+    
+    // Clear the cart only after successful order creation
+    cartStore.clearCart()
     
     notifications.success('Order placed successfully!')
     
-    // Clear the cart
-    cartStore.clearCart()
-    
     // Go to confirmation step
     activeStep.value = 3
+    
+    // After a delay, redirect to order history
+    setTimeout(() => {
+      navigateTo('/account/orders')
+    }, 5000)
     
     // Scroll to top
     window.scrollTo({
@@ -1292,8 +1212,6 @@ watch(sameAsShipping, (newValue) => {
       billingFirstName: null,
       billingLastName: null,
       billingAddress: null,
-      billingCity: null,
-      billingState: null,
       billingZipCode: null,
       billingCountry: null
     }
@@ -1307,8 +1225,6 @@ watch(() => formData.value, (newValue) => {
       firstName: newValue.firstName,
       lastName: newValue.lastName,
       address: newValue.address,
-      city: newValue.city,
-      state: newValue.state,
       zipCode: newValue.zipCode,
       country: newValue.country
     }

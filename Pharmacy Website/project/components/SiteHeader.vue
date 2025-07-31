@@ -4,13 +4,13 @@
       <!-- Top Bar -->
       <div class="hidden md:flex items-center justify-between py-2 border-b border-neutral-100 text-sm">
         <div class="flex items-center space-x-6">
-          <a href="tel:+18005551234" class="flex items-center text-neutral-600 hover:text-primary-600">
+          <a href="tel:+842873023456" class="flex items-center text-neutral-600 hover:text-primary-600">
             <span class="i-iconify-ph-phone-fill mr-1.5"></span>
-            <span>1-800-555-1234</span>
+            <span>(028) 73023456</span>
           </a>
-          <a href="mailto:support@medipharm.com" class="flex items-center text-neutral-600 hover:text-primary-600">
+          <a href="mailto:sale@nhathuoclongchau.com.vn" class="flex items-center text-neutral-600 hover:text-primary-600">
             <span class="i-iconify-ph-envelope-fill mr-1.5"></span>
-            <span>support@medipharm.com</span>
+            <span>sale@nhathuoclongchau.com.vn</span>
           </a>
         </div>
         <div class="flex items-center space-x-4">
@@ -20,28 +20,37 @@
           <div v-if="isAuthenticated" class="relative" @mouseleave="accountDropdownOpen = false">
             <button @mouseenter="accountDropdownOpen = true" 
                     class="flex items-center text-neutral-700 hover:text-primary-600">
-              <span>{{ authStore.getUserRole === 'admin' ? 'Admin Panel' : 'My Account' }}</span>
-              <span v-if="authStore.getUserRole === 'admin'" class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">ADMIN</span>
+              <span>{{ authStore.getUserRole === 'ADMIN' ? 'Admin Panel' : 'My Account' }}</span>
+              <span v-if="authStore.getUserRole === 'ADMIN'" class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full">ADMIN</span>
               <span class="i-iconify-ph-caret-down-fill ml-1"></span>
             </button>
             <div v-if="accountDropdownOpen" 
                  class="absolute right-0 top-full mt-1 w-48 bg-white shadow-md rounded-md py-2 z-10 animate-slide-up">
-              <NuxtLink to="/account" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">My Profile</NuxtLink>
-              <NuxtLink to="/account/orders" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Orders</NuxtLink>
-              <NuxtLink to="/account/prescriptions" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Prescriptions</NuxtLink>
-              <NuxtLink to="/account/medication-reminders" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Med Reminders</NuxtLink>
-              <NuxtLink to="/health-assessment" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Health Assessment</NuxtLink>
               
-              <!-- Admin Links -->
-              <template v-if="authStore.getUserRole === 'admin'">
+              <!-- Admin-specific links first -->
+              <template v-if="authStore.getUserRole === 'ADMIN'">
+                <NuxtLink to="/admin" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700 font-medium">Admin Dashboard</NuxtLink>
                 <div class="border-t border-neutral-200 my-2"></div>
                 <div class="px-4 py-1">
-                  <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Admin</span>
+                  <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Admin Functions</span>
                 </div>
                 <NuxtLink to="/admin/products" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Manage Products</NuxtLink>
+                <NuxtLink to="/admin/orders" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Manage Orders</NuxtLink>
+                <NuxtLink to="/admin/prescriptions" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Prescriptions</NuxtLink>
                 <NuxtLink to="/admin/inventory" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Inventory</NuxtLink>
                 <NuxtLink to="/admin/categories" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Categories</NuxtLink>
+                <div class="border-t border-neutral-200 my-2"></div>
+                <div class="px-4 py-1">
+                  <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Personal</span>
+                </div>
               </template>
+              
+              <!-- Regular user links (shown for both admin and customer) -->
+              <NuxtLink :to="authStore.getUserRole === 'ADMIN' ? '/account' : '/account'" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">My Profile</NuxtLink>
+              <NuxtLink to="/account/orders" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">My Orders</NuxtLink>
+              <NuxtLink to="/account/prescriptions" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">My Prescriptions</NuxtLink>
+              <NuxtLink to="/account/medication-reminders" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Med Reminders</NuxtLink>
+              <NuxtLink to="/health-assessment" class="block px-4 py-2 hover:bg-neutral-50 text-neutral-700">Health Assessment</NuxtLink>
               
               <div class="border-t border-neutral-200 my-2"></div>
               <button @click="logout" class="block w-full text-left px-4 py-2 hover:bg-neutral-50 text-neutral-700">Logout</button>
@@ -59,7 +68,7 @@
       <div class="flex items-center justify-between py-4">
         <div class="flex items-center">
           <NuxtLink to="/" class="mr-8">
-            <img src="https://placehold.co/200x50?text=MediPharm" alt="MediPharm Logo" class="h-10">
+            <img src="https://placehold.co/200x50?text=Long%20Châu" alt="Long Châu Logo" class="h-10">
           </NuxtLink>
           
           <!-- Desktop Navigation -->
@@ -181,6 +190,10 @@
                    class="whitespace-nowrap text-sm font-medium text-primary-600 hover:text-primary-700 py-1">
             Book Consultation
           </NuxtLink>
+          <NuxtLink to="/blog" 
+                   class="whitespace-nowrap text-sm font-medium text-green-600 hover:text-green-700 py-1">
+            Health Blog
+          </NuxtLink>
           <NuxtLink v-for="category in categories" :key="category.slug" 
                    :to="`/category/${category.slug}`" 
                    class="whitespace-nowrap text-sm text-neutral-600 hover:text-primary-600 py-1">
@@ -218,6 +231,7 @@ const mainNavItems = [
   { name: 'OTC Medicines', path: '/category/otc-medicines' },
   { name: 'Prescription', path: '/category/prescription' },
   { name: 'Medical Equipment', path: '/category/medical-devices' },
+  { name: 'Health Blog', path: '/blog' },
   { name: 'Book Consultation', path: '/book-consultation' },
   { name: 'Health Assessment', path: '/health-assessment' },
   { name: 'Drug Information', path: '/drug-info' },

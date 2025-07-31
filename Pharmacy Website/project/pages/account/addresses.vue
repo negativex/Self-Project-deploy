@@ -93,23 +93,10 @@
                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
           </div>
 
-          <!-- State -->
+          <!-- Postal Code -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">State *</label>
-            <select v-model="addressForm.state" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-              <option value="">Select State</option>
-              <option v-for="state in states" :key="state.code" :value="state.code">
-                {{ state.name }}
-              </option>
-            </select>
-          </div>
-
-          <!-- ZIP Code -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">ZIP Code *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Postal Code *</label>
             <input v-model="addressForm.zipCode" type="text" required 
-                   pattern="[0-9]{5}(-[0-9]{4})?"
                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
           </div>
 
@@ -118,8 +105,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">Country *</label>
             <select v-model="addressForm.country" required
                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-              <option value="US">United States</option>
-              <option value="CA">Canada</option>
+              <option value="VN">Vietnam</option>
             </select>
           </div>
 
@@ -229,7 +215,7 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Shipping Addresses - MediPharm',
+  title: 'Shipping Addresses - Long Châu',
   meta: [
     { name: 'description', content: 'Manage your shipping addresses for faster checkout and delivery.' }
   ]
@@ -250,95 +236,15 @@ const addressForm = ref({
   line1: '',
   line2: '',
   city: '',
-  state: '',
   zipCode: '',
-  country: 'US',
+  country: 'VN',
   isDefault: false
 })
 
 // Sample addresses - replace with API data
 const addresses = ref([
-  {
-    id: '1',
-    type: 'home',
-    name: 'John Doe',
-    phone: '(555) 123-4567',
-    line1: '123 Main Street',
-    line2: 'Apt 4B',
-    city: 'New York',
-    state: 'NY',
-    zipCode: '10001',
-    country: 'US',
-    isDefault: true
-  },
-  {
-    id: '2',
-    type: 'work',
-    name: 'John Doe',
-    phone: '(555) 987-6543',
-    line1: '456 Business Ave',
-    line2: 'Suite 200',
-    city: 'New York',
-    state: 'NY',
-    zipCode: '10002',
-    country: 'US',
-    isDefault: false
-  }
+  // Start with empty array - no sample data to avoid persistence issues
 ])
-
-// US States
-const states = [
-  { code: 'AL', name: 'Alabama' },
-  { code: 'AK', name: 'Alaska' },
-  { code: 'AZ', name: 'Arizona' },
-  { code: 'AR', name: 'Arkansas' },
-  { code: 'CA', name: 'California' },
-  { code: 'CO', name: 'Colorado' },
-  { code: 'CT', name: 'Connecticut' },
-  { code: 'DE', name: 'Delaware' },
-  { code: 'FL', name: 'Florida' },
-  { code: 'GA', name: 'Georgia' },
-  { code: 'HI', name: 'Hawaii' },
-  { code: 'ID', name: 'Idaho' },
-  { code: 'IL', name: 'Illinois' },
-  { code: 'IN', name: 'Indiana' },
-  { code: 'IA', name: 'Iowa' },
-  { code: 'KS', name: 'Kansas' },
-  { code: 'KY', name: 'Kentucky' },
-  { code: 'LA', name: 'Louisiana' },
-  { code: 'ME', name: 'Maine' },
-  { code: 'MD', name: 'Maryland' },
-  { code: 'MA', name: 'Massachusetts' },
-  { code: 'MI', name: 'Michigan' },
-  { code: 'MN', name: 'Minnesota' },
-  { code: 'MS', name: 'Mississippi' },
-  { code: 'MO', name: 'Missouri' },
-  { code: 'MT', name: 'Montana' },
-  { code: 'NE', name: 'Nebraska' },
-  { code: 'NV', name: 'Nevada' },
-  { code: 'NH', name: 'New Hampshire' },
-  { code: 'NJ', name: 'New Jersey' },
-  { code: 'NM', name: 'New Mexico' },
-  { code: 'NY', name: 'New York' },
-  { code: 'NC', name: 'North Carolina' },
-  { code: 'ND', name: 'North Dakota' },
-  { code: 'OH', name: 'Ohio' },
-  { code: 'OK', name: 'Oklahoma' },
-  { code: 'OR', name: 'Oregon' },
-  { code: 'PA', name: 'Pennsylvania' },
-  { code: 'RI', name: 'Rhode Island' },
-  { code: 'SC', name: 'South Carolina' },
-  { code: 'SD', name: 'South Dakota' },
-  { code: 'TN', name: 'Tennessee' },
-  { code: 'TX', name: 'Texas' },
-  { code: 'UT', name: 'Utah' },
-  { code: 'VT', name: 'Vermont' },
-  { code: 'VA', name: 'Virginia' },
-  { code: 'WA', name: 'Washington' },
-  { code: 'WV', name: 'West Virginia' },
-  { code: 'WI', name: 'Wisconsin' },
-  { code: 'WY', name: 'Wyoming' }
-]
 
 // Methods
 const saveAddress = async () => {
@@ -384,9 +290,23 @@ const editAddress = (address) => {
 
 const deleteAddress = async (address) => {
   if (confirm('Are you sure you want to delete this address?')) {
-    const index = addresses.value.findIndex(addr => addr.id === address.id)
-    if (index !== -1) {
-      addresses.value.splice(index, 1)
+    try {
+      const index = addresses.value.findIndex(addr => addr.id === address.id)
+      if (index !== -1) {
+        addresses.value.splice(index, 1)
+        
+        // If deleted address was default and there are remaining addresses, set first one as default
+        if (address.isDefault && addresses.value.length > 0) {
+          addresses.value[0].isDefault = true
+        }
+        
+        console.log('Address deleted successfully')
+      } else {
+        console.error('Address not found for deletion')
+      }
+    } catch (error) {
+      console.error('Error deleting address:', error)
+      alert('Failed to delete address. Please try again.')
     }
   }
 }
@@ -408,9 +328,8 @@ const cancelForm = () => {
     line1: '',
     line2: '',
     city: '',
-    state: '',
     zipCode: '',
-    country: 'US',
+    country: 'VN',
     isDefault: false
   }
 }

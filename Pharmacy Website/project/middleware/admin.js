@@ -15,7 +15,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   if (!authStore.isLoggedIn) {
     return navigateTo({
       path: '/login',
-      query: { redirect: to.fullPath }
+      query: { redirect: to.fullPath, message: 'Please login to access admin area' }
     })
   }
 
@@ -28,10 +28,11 @@ export default defineNuxtRouteMiddleware((to, from) => {
   }
 
   // Check if user has admin role
-  if (authStore.getUserRole !== 'admin') {
+  if (authStore.getUserRole !== 'ADMIN') {
     throw createError({
       statusCode: 403,
-      statusMessage: 'Access denied. Admin privileges required.'
+      statusMessage: 'Admin privileges required',
+      message: 'You need administrator access to view this page. Please login with an admin account.'
     })
   }
 })

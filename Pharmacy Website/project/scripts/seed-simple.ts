@@ -99,7 +99,7 @@ async function seedDatabase() {
         maxStock: 600,
         images: JSON.stringify(["/images/products/ibuprofen-200mg.jpg"]),
         featured: true,
-        manufacturer: "MediPharm",
+        manufacturer: "Long Châu",
         ingredients: JSON.stringify(["Ibuprofen 200mg"]),
         dosage: "1-2 tablets every 6-8 hours with food. Maximum 6 tablets in 24 hours.",
         categoryId: categories[0].id

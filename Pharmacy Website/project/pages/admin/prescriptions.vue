@@ -255,7 +255,7 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Prescriptions - Admin - MediPharm'
+  title: 'Prescriptions - Admin - Long Châu'
 })
 
 // Reactive data

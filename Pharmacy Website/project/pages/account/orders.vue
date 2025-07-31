@@ -276,7 +276,7 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Order History - MediPharm',
+  title: 'Order History - Long Châu',
   meta: [
     { name: 'description', content: 'View and track your order history, reorder items, and manage returns.' }
   ]
@@ -492,7 +492,9 @@ const visiblePages = computed(() => {
 onMounted(async () => {
   loading.value = true
   try {
+    console.log('Orders page: Loading orders...')
     await ordersStore.fetchOrders()
+    console.log('Orders page: Orders loaded:', ordersStore.orders.length)
   } catch (error) {
     console.error('Error loading orders:', error)
     notifications.error('Failed to load orders')

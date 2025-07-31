@@ -73,7 +73,7 @@
             Over-the-counter (OTC) medicines are medications that can be purchased without a prescription from a healthcare professional. These products are designed to treat a variety of common ailments and symptoms, including pain, fever, allergies, cough, cold, and digestive issues.
           </p>
           <p class="mt-4">
-            At MediPharm, we carefully curate our selection of OTC medicines to ensure they meet the highest standards of quality and effectiveness. All products are sourced from reputable manufacturers and are compliant with FDA regulations.
+            At Long Châu, we carefully curate our selection of OTC medicines to ensure they meet the highest standards of quality and effectiveness. All products are sourced from reputable manufacturers and are compliant with FDA regulations.
           </p>
           <p class="mt-4">
             While OTC medicines are generally safe when used as directed, it's important to carefully read and follow the instructions on the label. If you have any questions or concerns about which product is right for you, our pharmacists are available to provide guidance.

@@ -201,7 +201,7 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Orders - Admin - MediPharm'
+  title: 'Orders - Admin - Long Châu'
 })
 
 // Reactive data

@@ -44,6 +44,15 @@ export const useAuthStore = defineStore('auth', {  state: () => ({
           localStorage.setItem('auth-token', response.token)
           localStorage.setItem('refresh-token', response.refreshToken)
           localStorage.setItem('session-expiry', this.sessionExpiry.toString())
+          
+          // Load user-specific cart after login
+          try {
+            const { useCartStore } = await import('~/stores/cart')
+            const cartStore = useCartStore()
+            cartStore.loadUserCart(response.user.id)
+          } catch (cartError) {
+            console.warn('Failed to load user cart:', cartError)
+          }
         }
         
         // Start session monitoring
@@ -76,6 +85,15 @@ export const useAuthStore = defineStore('auth', {  state: () => ({
           localStorage.setItem('auth-token', response.token)
           localStorage.setItem('refresh-token', response.refreshToken)
           localStorage.setItem('session-expiry', this.sessionExpiry.toString())
+          
+          // Load user-specific cart after registration (should be empty for new user)
+          try {
+            const { useCartStore } = await import('~/stores/cart')
+            const cartStore = useCartStore()
+            cartStore.loadUserCart(response.user.id)
+          } catch (cartError) {
+            console.warn('Failed to load user cart:', cartError)
+          }
         }
         
         // Start session monitoring
@@ -99,7 +117,11 @@ export const useAuthStore = defineStore('auth', {  state: () => ({
           }
         })
       } catch (error) {
-        console.error('Logout error:', error)      } finally {
+        console.error('Logout error:', error)
+      } finally {
+        // Store old user ID before clearing
+        const oldUserId = this.user?.id
+
         this.user = null
         this.token = null
         this.refreshToken = null
@@ -113,6 +135,13 @@ export const useAuthStore = defineStore('auth', {  state: () => ({
           localStorage.removeItem('auth-token')
           localStorage.removeItem('refresh-token')
           localStorage.removeItem('session-expiry')
+          
+          // Clear user-specific cart when logging out
+          if (oldUserId) {
+            const { useCartStore } = await import('~/stores/cart')
+            const cartStore = useCartStore()
+            cartStore.clearUserCart(oldUserId)
+          }
         }
       }
     },
@@ -173,7 +202,9 @@ export const useAuthStore = defineStore('auth', {  state: () => ({
       } finally {
         this.loading = false
       }
-    },    initializeAuth() {
+    },
+
+    initializeAuth() {
       if (process.client) {
         const token = localStorage.getItem('auth-token')
         const refreshToken = localStorage.getItem('refresh-token')

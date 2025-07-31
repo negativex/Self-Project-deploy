@@ -139,7 +139,7 @@
                   </div>
                   <div class="ml-2">
                     <label for="terms" class="text-sm text-neutral-600">
-                      I confirm that I have a valid prescription and consent to MediPharm processing my personal data in accordance with the <NuxtLink to="/privacy-policy" class="text-primary-600 hover:text-primary-700">Privacy Policy</NuxtLink>
+                      I confirm that I have a valid prescription and consent to Long Châu processing my personal data in accordance with the <NuxtLink to="/privacy-policy" class="text-primary-600 hover:text-primary-700">Privacy Policy</NuxtLink>
                     </label>
                     <p v-if="errors.termsAgreed" class="text-accent-600 text-xs mt-1">{{ errors.termsAgreed }}</p>
                   </div>
@@ -225,7 +225,7 @@
               <div class="flex">
                 <span class="i-iconify-ph-info-fill text-xl text-primary-600 mr-2 mt-0.5"></span>
                 <p class="text-sm text-primary-600">
-                  Need help? Contact our pharmacy team at <a href="tel:+18005551234" class="font-medium">1-800-555-1234</a> or <a href="mailto:pharmacy@medipharm.com" class="font-medium">pharmacy@medipharm.com</a>
+                  Need help? Contact our pharmacy team at <a href="tel:+84287302345" class="font-medium">(028) 73023456</a> or <a href="mailto:sale@nhathuoclongchau.com.vn" class="font-medium">sale@nhathuoclongchau.com.vn</a>
                 </p>
               </div>
             </div>

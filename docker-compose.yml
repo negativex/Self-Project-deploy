@@ -10,8 +10,12 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=file:/app/data/production.db
-      - JWT_SECRET=your-production-jwt-secret
-      - JWT_REFRESH_SECRET=your-production-refresh-secret
+      - JWT_SECRET=your-super-secret-jwt-key
+      - JWT_REFRESH_SECRET=your-super-secret-refresh-key
+      - JWT_EXPIRES_IN=15m
+      - JWT_REFRESH_EXPIRES_IN=7d
+      - ADMIN_EMAIL=admin@pharmacy.com
+      - ADMIN_PASSWORD=admin123
       - NUXT_HOST=0.0.0.0
       - NUXT_PORT=3000
     volumes:

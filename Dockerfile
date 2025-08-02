@@ -1,4 +1,4 @@
-# Multi-stage build for Nuxt.js application
+# Multi-stage build for production
 FROM node:18-alpine AS base
 
 # Install dependencies only when needed
@@ -10,8 +10,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install ALL dependencies (including devDependencies for build)
-RUN npm ci && npm cache clean --force
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -29,39 +29,28 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-# Create a non-root user
+ENV NODE_ENV=production
+ENV NUXT_HOST=0.0.0.0
+ENV NUXT_PORT=3000
+
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nuxtjs
-
-# Create data directory for SQLite
-RUN mkdir -p /app/data && chown nuxtjs:nodejs /app/data
 
 # Copy the built application
 COPY --from=builder --chown=nuxtjs:nodejs /app/.output /app/.output
 COPY --from=builder --chown=nuxtjs:nodejs /app/prisma /app/prisma
 COPY --from=builder --chown=nuxtjs:nodejs /app/package*.json /app/
 
-# Install only production dependencies
-RUN npm ci --omit=dev && npm cache clean --force
+# Copy SQLite database if it exists
+COPY --from=builder --chown=nuxtjs:nodejs /app/dev.db* /app/
 
-# Copy SQLite database if exists (using shell to handle optional files)
-RUN if [ -f /app/dev.db ]; then cp /app/dev.db /app/data/production.db; fi
+# Install only production dependencies and Prisma CLI
+RUN npm ci --only=production && npm cache clean --force
+RUN npm install prisma --save-dev
 
-# Switch to non-root user
 USER nuxtjs
 
-# Expose port
 EXPOSE 3000
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV NUXT_HOST=0.0.0.0
-ENV NUXT_PORT=3000
-ENV DATABASE_URL=file:/app/data/production.db
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
-
-# Start the application
-CMD ["node", ".output/server/index.mjs"]
+# Run database migrations and start the application
+CMD ["sh", "-c", "npx prisma migrate deploy && node .output/server/index.mjs"]

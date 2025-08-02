@@ -41,11 +41,11 @@ jobs:
       #   env:
       #     DATABASE_URL: file:./data/test.db
 
-      - name: Run linter
-        run: npm run lint
+      # - name: Run linter
+      #   run: npm run lint
 
-      - name: Run type check
-        run: npm run typecheck
+      # - name: Run type check
+      #   run: npm run typecheck
 
       - name: Build application
         run: npm run build

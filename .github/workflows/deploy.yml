@@ -8,7 +8,7 @@ on:
 
 env:
   AWS_REGION: ap-southeast-1 # Thay đổi theo region của bạn
-  ECR_REPOSITORY: duan-pharmacy # Thay đổi theo tên repository ECR của bạn
+  ECR_REPOSITORY: pharmacy-web-app # Thay đổi theo tên repository ECR của bạn
 
 jobs:
   build-and-push:

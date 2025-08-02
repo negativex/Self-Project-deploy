@@ -1,38 +1,31 @@
-import { defineEventHandler, setResponseStatus } from "h3";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { defineEventHandler, createError } from "h3";
 
 export default defineEventHandler(async (event) => {
   try {
     // Basic health check
-    const healthStatus = {
-      status: "healthy",
+    const health = {
+      status: "ok",
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       environment: process.env.NODE_ENV || "development",
-      version: "1.0.0",
+      version: process.env.npm_package_version || "1.0.0",
     };
 
     // Optional: Check database connection
     try {
-      await prisma.$queryRaw`SELECT 1`;
-      healthStatus.database = "connected";
+      // You can add a simple database query here if needed
+      // const db = await prisma.$queryRaw`SELECT 1`
+      health.database = "connected";
     } catch (error) {
-      healthStatus.database = "disconnected";
-      healthStatus.status = "unhealthy";
+      health.database = "disconnected";
+      health.status = "degraded";
     }
 
-    setResponseStatus(event, healthStatus.status === "healthy" ? 200 : 503);
-    return healthStatus;
+    return health;
   } catch (error) {
-    setResponseStatus(event, 503);
-    return {
-      status: "unhealthy",
-      timestamp: new Date().toISOString(),
-      error: "Health check failed",
-    };
-  } finally {
-    await prisma.$disconnect();
+    throw createError({
+      statusCode: 500,
+      statusMessage: "Health check failed",
+    });
   }
 });

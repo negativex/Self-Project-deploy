@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  app:
+  pharmacy-app:
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,15 +10,12 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=file:/app/data/production.db
-      - JWT_SECRET=your-super-secret-jwt-key-here
-      - JWT_REFRESH_SECRET=your-super-secret-refresh-key-here
-      - JWT_EXPIRES_IN=15m
-      - JWT_REFRESH_EXPIRES_IN=7d
-      - ADMIN_EMAIL=admin@pharmacy.com
-      - ADMIN_PASSWORD=admin123
+      - JWT_SECRET=your-production-jwt-secret
+      - JWT_REFRESH_SECRET=your-production-refresh-secret
+      - NUXT_HOST=0.0.0.0
+      - NUXT_PORT=3000
     volumes:
       - sqlite_data:/app/data
-    restart: unless-stopped
     healthcheck:
       test:
         [
@@ -33,6 +30,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    restart: unless-stopped
 
 volumes:
   sqlite_data:

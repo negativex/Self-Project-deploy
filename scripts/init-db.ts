@@ -1,35 +1,78 @@
-import { execSync } from "child_process";
-import { existsSync, mkdirSync } from "fs";
-import path from "path";
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
-async function initDatabase() {
-  try {
-    console.log("🗄️  Initializing SQLite database...");
+const prisma = new PrismaClient();
 
-    // Create data directory if it doesn't exist
-    const dataDir = path.join(process.cwd(), "data");
-    if (!existsSync(dataDir)) {
-      mkdirSync(dataDir, { recursive: true });
-      console.log("📁 Created data directory");
-    }
+async function main() {
+  console.log("🌱 Seeding database...");
 
-    // Generate Prisma client
-    console.log("🔧 Generating Prisma client...");
-    execSync("npx prisma generate", { stdio: "inherit" });
+  // Create admin user
+  const hashedPassword = await bcrypt.hash(
+    process.env.ADMIN_PASSWORD || "admin123",
+    12
+  );
 
-    // Push database schema
-    console.log("📊 Pushing database schema...");
-    execSync("npx prisma db push", { stdio: "inherit" });
+  const admin = await prisma.user.upsert({
+    where: { email: process.env.ADMIN_EMAIL || "admin@pharmacy.com" },
+    update: {},
+    create: {
+      email: process.env.ADMIN_EMAIL || "admin@pharmacy.com",
+      password: hashedPassword,
+      name: "Administrator",
+      role: "ADMIN",
+      isActive: true,
+    },
+  });
 
-    // Run seeder
-    console.log("🌱 Seeding database...");
-    execSync("npx tsx seed-simple.ts", { stdio: "inherit" });
+  console.log("✅ Admin user created:", admin.email);
 
-    console.log("✅ Database initialization completed!");
-  } catch (error) {
-    console.error("❌ Database initialization failed:", error);
-    process.exit(1);
+  // Create sample categories
+  const categories = [
+    {
+      name: "Over-the-Counter Medicines",
+      slug: "otc-medicines",
+      description: "Non-prescription medications",
+    },
+    {
+      name: "Prescription Medicines",
+      slug: "prescription",
+      description: "Prescription-only medications",
+    },
+    {
+      name: "Vitamins & Supplements",
+      slug: "vitamins-supplements",
+      description: "Health supplements and vitamins",
+    },
+    {
+      name: "Personal Care",
+      slug: "personal-care",
+      description: "Personal hygiene and care products",
+    },
+    {
+      name: "Medical Devices",
+      slug: "medical-devices",
+      description: "Medical equipment and devices",
+    },
+  ];
+
+  for (const category of categories) {
+    await prisma.category.upsert({
+      where: { slug: category.slug },
+      update: {},
+      create: category,
+    });
   }
+
+  console.log("✅ Categories created");
+
+  console.log("🎉 Database seeded successfully!");
 }
 
-initDatabase();
+main()
+  .catch((e) => {
+    console.error("❌ Error seeding database:", e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

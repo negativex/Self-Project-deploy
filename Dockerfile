@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci && npm cache clean --force
 
 FROM base AS builder
 WORKDIR /app
@@ -27,9 +27,10 @@ RUN adduser --system --uid 1001 nuxtjs
 RUN mkdir -p /app/data && chown nuxtjs:nodejs /app/data
 
 COPY --from=builder --chown=nuxtjs:nodejs /app/.output /app/.output
-COPY --from=builder --chown=nuxtjs:nodejs /app/node_modules /app/node_modules
 COPY --from=builder --chown=nuxtjs:nodejs /app/prisma /app/prisma
 COPY --from=builder --chown=nuxtjs:nodejs /app/package*.json /app/
+
+RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=builder --chown=nuxtjs:nodejs /app/dev.db* /app/data/ 2>/dev/null || true
 
